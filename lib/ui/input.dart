@@ -92,7 +92,7 @@ class Input extends StatelessWidget {
         //getting the history
         History history = await DatabaseHelper.instance.getHistory(x);
 
-        if (FileChecker.checkAllFiles(history)==0) {
+        if (FileChecker.checkAllFiles(history) == 0) {
           //show dialog
           showDialog(
               context: context,
@@ -103,6 +103,7 @@ class Input extends StatelessWidget {
           return;
         } else {
           showDialog(
+              barrierDismissible: false,
               context: context,
               builder: (_) => AlertDialog(
                   title: Text('Downloading'),
@@ -122,6 +123,7 @@ class Input extends StatelessWidget {
       }
     }
     showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (_) => AlertDialog(
             title: Text('Downloading'),
