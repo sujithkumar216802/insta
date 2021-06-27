@@ -3,16 +3,16 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:insta_downloader/models/fileInfoModel.dart';
-import 'package:insta_downloader/ui/historyTemplate.dart';
+import 'package:insta_downloader/models/file_info_model.dart';
+import 'package:insta_downloader/ui/history_template.dart';
 import 'package:insta_downloader/utils/downloader.dart';
-import 'package:insta_downloader/utils/fileChecker.dart';
+import 'package:insta_downloader/utils/file_checker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../models/HistoryModel.dart';
-import '../utils/databaseHelper.dart';
-import '../utils/fileChecker.dart';
+import '../models/history_model.dart';
+import '../utils/database_helper.dart';
+import '../utils/file_checker.dart';
 
 class HistoryView extends StatefulWidget {
   const HistoryView({Key key}) : super(key: key);
@@ -65,9 +65,7 @@ class _HistoryViewState extends State<HistoryView> {
             if (x.isAvailable) listFiles.add(x.file);
           await Share.shareFiles(listFiles);
         } else {
-          setState(() {
-            list = list;
-          });
+          setState(() {});
         }
         break;
       case 'caption':
@@ -84,9 +82,7 @@ class _HistoryViewState extends State<HistoryView> {
         }
         await DatabaseHelper.instance.delete(list[index]);
         list.removeAt(index);
-        setState(() {
-          list = list;
-        });
+        setState(() {});
         break;
       case 'download':
         showDialog(
@@ -104,9 +100,7 @@ class _HistoryViewState extends State<HistoryView> {
                 )));
         await Downloader.updateHistory(list[index]);
         Navigator.pop(context);
-        setState(() {
-          list = list;
-        });
+        setState(() {});
         break;
     }
   }

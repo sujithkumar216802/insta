@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:insta_downloader/models/HistoryModel.dart';
+import 'package:insta_downloader/models/history_model.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -54,12 +54,13 @@ class DatabaseHelper {
 
   Future<void> update(History history) async {
     Database db = await instance.database;
-    await db.update(_tableName, history.toMap(),where: 'url = ?', whereArgs: [history.url]);
+    await db.update(_tableName, history.toMap(),
+        where: 'url = ?', whereArgs: [history.url]);
   }
 
   Future<void> delete(History history) async {
     Database db = await instance.database;
-    await db.delete(_tableName,where: 'url = ?', whereArgs: [history.url]);
+    await db.delete(_tableName, where: 'url = ?', whereArgs: [history.url]);
   }
 
   Future<List<History>> getAllHistory() async {
@@ -72,14 +73,15 @@ class DatabaseHelper {
 
   Future<List<String>> getUrls() async {
     Database db = await instance.database;
-    List<Map<String, dynamic>> urls = await db.query(_tableName,columns: [columnUrl]);
+    List<Map<String, dynamic>> urls =
+        await db.query(_tableName, columns: [columnUrl]);
     return List.generate(urls.length, (index) => urls[index]['url']);
   }
 
   Future<History> getHistory(String url) async {
     Database db = await instance.database;
-    List<Map<String,dynamic>> history = await db.query(_tableName, where: '$columnUrl = ?',whereArgs: [url]);
+    List<Map<String, dynamic>> history =
+        await db.query(_tableName, where: '$columnUrl = ?', whereArgs: [url]);
     return History.fromMap(history.first);
   }
-
 }

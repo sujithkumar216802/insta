@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:insta_downloader/models/HistoryModel.dart';
-import 'package:insta_downloader/models/fileInfoModel.dart';
+import 'package:insta_downloader/models/file_info_model.dart';
+import 'package:insta_downloader/models/history_model.dart';
 
-import 'databaseHelper.dart';
+import 'database_helper.dart';
 
 class FileChecker {
   static int checkAllFiles(History history) {
@@ -21,8 +21,7 @@ class FileChecker {
 
     if (available == history.files.length)
       available = 2;
-    else if (available != 0)
-      available = 1;
+    else if (available != 0) available = 1;
     return available;
   }
 }

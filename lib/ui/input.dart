@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:insta_downloader/models/HistoryModel.dart';
-import 'package:insta_downloader/utils/databaseHelper.dart';
+import 'package:insta_downloader/models/history_model.dart';
+import 'package:insta_downloader/utils/database_helper.dart';
 import 'package:insta_downloader/utils/downloader.dart';
-import 'package:insta_downloader/utils/fileChecker.dart';
+import 'package:insta_downloader/utils/file_checker.dart';
 import 'package:insta_downloader/utils/permission.dart';
 
 class Input extends StatelessWidget {

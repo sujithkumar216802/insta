@@ -1,16 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:insta_downloader/ui/popUpMenu.dart';
-import 'package:insta_downloader/utils/fileChecker.dart';
+import 'package:insta_downloader/ui/pop_up_menu.dart';
+import 'package:insta_downloader/utils/file_checker.dart';
 
-import '../models/HistoryModel.dart';
+import '../models/history_model.dart';
 
 class HistoryTemplate extends StatelessWidget {
-  const HistoryTemplate({Key key, @required this.history, @required this.index, @required this.function}) : super(key: key);
+  const HistoryTemplate(
+      {Key key,
+      @required this.history,
+      @required this.index,
+      @required this.function})
+      : super(key: key);
   final History history;
   final int index;
   final function;
-
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +39,7 @@ class HistoryTemplate extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      child: Text(history.tag,
-                          overflow: TextOverflow.ellipsis),
+                      child: Text(history.tag, overflow: TextOverflow.ellipsis),
                       padding: EdgeInsets.fromLTRB(
                           MediaQuery.of(context).size.width / 50,
                           MediaQuery.of(context).size.width / 50,
@@ -44,7 +47,7 @@ class HistoryTemplate extends StatelessWidget {
                           5),
                     ),
                     Container(
-                      height: MediaQuery.of(context).size.width*8 / 50 - 16,
+                      height: MediaQuery.of(context).size.width * 8 / 50 - 16,
                       child: Text(history.description,
                           overflow: TextOverflow.ellipsis, softWrap: false),
                       padding: EdgeInsets.fromLTRB(
@@ -58,11 +61,11 @@ class HistoryTemplate extends StatelessWidget {
           ],
         ),
       ),
-      trailing: TripleDot(function: function, index: index, type: FileChecker.checkAllFiles(history),),
+      trailing: TripleDot(
+        function: function,
+        index: index,
+        type: FileChecker.checkAllFiles(history),
+      ),
     );
   }
-
-
-
-
 }

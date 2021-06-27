@@ -1,5 +1,6 @@
-import 'package:insta_downloader/models/fileInfoModel.dart';
 import 'dart:convert';
+
+import 'package:insta_downloader/models/file_info_model.dart';
 
 class Extractor {
   static const videoHeader = "\"video_url\":\"";
@@ -19,7 +20,7 @@ class Extractor {
     List<FileInfo> temp = [];
     List<FileInfo> temp2 = [];
     Set<FileInfo> links = Set();
-    String descriptionString ="";
+    String descriptionString = "";
     String thumbnailUrl = "";
     String accountTagString = "";
     int videoFooterIndex = 0;
@@ -33,7 +34,6 @@ class Extractor {
     bool json = false;
     var jsonDict = {};
     int linkStartIndex, linkEndIndex;
-
 
     for (int i = 0; i < html.length; i++) {
       //VIDEO LINKS
@@ -55,8 +55,7 @@ class Extractor {
 
         if (videoFooterIndex == videoFooter.length) {
           linkEndIndex = i - videoFooter.length + 1;
-          temp.add(FileInfo(
-              2, html.substring(linkStartIndex, linkEndIndex)));
+          temp.add(FileInfo(2, html.substring(linkStartIndex, linkEndIndex)));
           video = false;
           videoHeaderIndex = 0;
           videoFooterIndex = 0;
@@ -82,8 +81,7 @@ class Extractor {
 
         if (displayFooterIndex == displayFooter.length) {
           linkEndIndex = i - displayFooter.length + 1;
-          temp.add(FileInfo(
-              1, html.substring(linkStartIndex, linkEndIndex)));
+          temp.add(FileInfo(1, html.substring(linkStartIndex, linkEndIndex)));
           display = false;
           displayHeaderIndex = 0;
           displayFooterIndex = 0;
@@ -115,9 +113,7 @@ class Extractor {
           jsonFooterIndex = 0;
         }
       }
-
     }
-
 
     thumbnailUrl = temp[0].url;
     temp.removeAt(0);
@@ -135,10 +131,7 @@ class Extractor {
       links.add(FileInfo(x.type, x.url.replaceAll("\\u0026", '&')));
     thumbnailUrl = thumbnailUrl.replaceAll("\\u0026", '&');
 
-
-
-    if(jsonDict['caption']!=null)
-      descriptionString = jsonDict['caption'];
+    if (jsonDict['caption'] != null) descriptionString = jsonDict['caption'];
     accountTagString = jsonDict['author']['alternateName'];
 
     var returnValue = {

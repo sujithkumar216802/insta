@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:insta_downloader/models/fileInfoModel.dart';
+import 'package:insta_downloader/models/file_info_model.dart';
 
 class History {
   final String url;
@@ -36,7 +36,7 @@ class History {
         history['url'],
         base64.decode(history['thumbnail']),
         fileInfoList,
-        history['isAvailableOnline']==1,
+        history['isAvailableOnline'] == 1,
         history['description'],
         history['tag']);
   }

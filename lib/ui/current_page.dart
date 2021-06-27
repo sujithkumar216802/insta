@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:insta_downloader/ui/historyView.dart';
+import 'package:insta_downloader/ui/history_view.dart';
 import 'package:insta_downloader/ui/input.dart';
 import 'package:insta_downloader/ui/settings.dart';
 
@@ -36,19 +36,21 @@ class _CurrentPageState extends State<CurrentPage> {
       ),
     );
   }
-  
+
   page(int x) {
-    switch(x) {
+    switch (x) {
       case 1:
         return Input();
         break;
-      case 2: return HistoryView();
+      case 2:
+        return HistoryView();
         break;
-      case 3:return Settings();
+      case 3:
+        return Settings();
         break;
     }
   }
-  
+
   change(int x) {
     setState(() {
       state = x;

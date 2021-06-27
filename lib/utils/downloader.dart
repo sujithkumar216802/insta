@@ -1,20 +1,24 @@
 import 'dart:io';
 
-import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:insta_downloader/models/fileInfoModel.dart';
-import 'package:insta_downloader/utils/Extractor.dart';
-import 'package:insta_downloader/utils/databaseHelper.dart';
+import 'package:insta_downloader/models/file_info_model.dart';
+import 'package:insta_downloader/utils/database_helper.dart';
+import 'package:insta_downloader/utils/extractor.dart';
+import 'package:insta_downloader/utils/path_provider_util.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-import '../models/HistoryModel.dart';
+import '../models/history_model.dart';
 
 class Downloader {
   static const uuid = Uuid();
 
   static downloadFile(var values, String postUrl) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String dir = prefs.getString('download_location') ??
+        await PathProviderUtil.getDownloadPath();
+
     File file;
-    String dir = (await DownloadsPathProvider.downloadsDirectory).path;
 
     //post download
     var urls = values["links"];
@@ -37,13 +41,12 @@ class Downloader {
         values['links'], true, values['description'], values['account_tag']));
   }
 
-
   static updateHistory(History history) async {
     File file;
 
     //post download
     for (FileInfo url in history.files) {
-      if(!url.isAvailable) {
+      if (!url.isAvailable) {
         var response = await http.get(Uri.parse(url.url));
         file = new File(url.file);
         await file.writeAsBytes(response.bodyBytes);
@@ -69,5 +72,4 @@ class Downloader {
       return null;
     }
   }
-
 }

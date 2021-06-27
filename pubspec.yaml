@@ -27,12 +27,9 @@ dependencies:
   path_provider: ^2.0.2
   uuid: ^3.0.4
   sqflite: ^2.0.0+3
-  path: ^1.8.0
-  downloads_path_provider: ^0.1.0
   permission_handler: ^8.1.1
   url_launcher: ^6.0.6
   share_plus: ^2.1.2
-  filesystem_picker: ^1.0.4
   shared_preferences: ^2.0.6
 
   # The following adds the Cupertino Icons font to your application.
