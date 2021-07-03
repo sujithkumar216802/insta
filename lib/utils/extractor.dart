@@ -116,7 +116,8 @@ class Extractor {
     }
 
     thumbnailUrl = temp[0].url;
-    temp.removeAt(0);
+    //thumbnail for video posts and multi photo
+    if (temp.length > 1) temp.removeAt(0);
 
     //removing useless links
     for (int i = temp.length - 1; i >= 0; i--) {
