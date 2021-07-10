@@ -57,11 +57,11 @@ class Input extends StatelessWidget {
     String url = UrlController.text;
 
     //check url TODO
-    if (url.length < 26 ||
-        url.substring(0, 26) != "https://www.instagram.com/" ||
-        url == "https://www.instagram.com/reel/" ||
+    if (url == "https://www.instagram.com/reel/" ||
         url == "https://www.instagram.com/p/" ||
-        url == "https://www.instagram.com/tv/") {
+        url == "https://www.instagram.com/tv/" ||
+        (!url.startsWith("https://www.instagram.com/tv/") && !url.startsWith("https://www.instagram.com/p/") && !url.startsWith("https://www.instagram.com/reel/")) ||
+        url.startsWith("https://www.instagram.com/stories")) {
       //show dialog
       showDialog(
           context: context,
