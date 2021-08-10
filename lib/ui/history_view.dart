@@ -23,6 +23,7 @@ class HistoryView extends StatefulWidget {
 
 class _HistoryViewState extends State<HistoryView> {
   List<History> list = [];
+  //TODO
   FileChecker fileChecker = new FileChecker();
 
   _HistoryViewState() {

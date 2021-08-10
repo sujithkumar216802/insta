@@ -45,9 +45,9 @@ class _CurrentPageState extends State<CurrentPage> {
       case 2:
         return HistoryView();
         break;
-      case 3:
-        return Settings();
-        break;
+      // case 3:
+      //   return Settings();
+      //   break;
     }
   }
 

@@ -27,12 +27,12 @@ class MyDrawer extends StatelessWidget {
                 onChange(2);
                 Navigator.pop(context);
               }),
-          ListTile(
-              title: Text('Settings'),
-              onTap: () {
-                onChange(3);
-                Navigator.pop(context);
-              }),
+          // ListTile(
+          //     title: Text('Settings'),
+          //     onTap: () {
+          //       onChange(3);
+          //       Navigator.pop(context);
+          //     }),
         ],
       ),
     );

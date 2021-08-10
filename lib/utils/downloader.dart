@@ -5,7 +5,8 @@ import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/utils/database_helper.dart';
 import 'package:insta_downloader/utils/extractor.dart';
 import 'package:insta_downloader/utils/path_provider_util.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/history_model.dart';
@@ -14,9 +15,9 @@ class Downloader {
   static const uuid = Uuid();
 
   static downloadFile(var values, String postUrl) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String dir = prefs.getString('download_location') ??
-        await PathProviderUtil.getDownloadPath();
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    String dir = appDocDir.path;
 
     File file;
 

@@ -72,18 +72,19 @@ class Input extends StatelessWidget {
       return;
     }
 
-    //check permission //TODO
-    bool permission = await PermissionManager.getDownloadPermission();
-    if (!permission) {
-      //show dialog
-      showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-                title: Text('Permission not granted'),
-                content: Text('Read, write permission is not granted'),
-              ));
-      return;
-    }
+    //check permission
+
+    // bool permission = await PermissionManager.getDownloadPermission();
+    // if (!permission) {
+    //   //show dialog
+    //   showDialog(
+    //       context: context,
+    //       builder: (_) => AlertDialog(
+    //             title: Text('Permission not granted'),
+    //             content: Text('Read, write permission is not granted'),
+    //           ));
+    //   return;
+    // }
 
     //check duplicates
     List<String> urlList = await DatabaseHelper.instance.getUrls();
