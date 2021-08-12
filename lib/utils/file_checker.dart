@@ -5,6 +5,12 @@ import 'package:insta_downloader/models/history_model.dart';
 
 import 'database_helper.dart';
 
+/*
+available = 0 :- all are available...
+available = 1 :- partial availability
+available = 2 :- no availabiility
+*/
+
 class FileChecker {
   static int checkAllFiles(History history) {
     //updating the file availability info

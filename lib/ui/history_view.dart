@@ -23,7 +23,7 @@ class HistoryView extends StatefulWidget {
 
 class _HistoryViewState extends State<HistoryView> {
   List<History> list = [];
-  //TODO
+  //TODO change to static function
   FileChecker fileChecker = new FileChecker();
 
   _HistoryViewState() {
@@ -52,6 +52,8 @@ class _HistoryViewState extends State<HistoryView> {
     );
   }
 
+
+  //TODO CHANGE EVERYTHING TO FIT THE PREVIEW
   void popUpMenuFunction(String value, int index) async {
     switch (value) {
       case 'url':
@@ -60,6 +62,7 @@ class _HistoryViewState extends State<HistoryView> {
             : throw 'Could not launch ${list[index].url}';
         break;
       case 'share':
+        //TODO just download the files that are not available ig
         if (FileChecker.checkAllFiles(list[index]) != 2) {
           List<String> listFiles = [];
           for (FileInfo x in list[index].files)
@@ -78,7 +81,6 @@ class _HistoryViewState extends State<HistoryView> {
           if (l.isAvailable) {
             File f = File(l.file);
             f.delete();
-            //l.isAvailable = false;
           }
         }
         await DatabaseHelper.instance.delete(list[index]);

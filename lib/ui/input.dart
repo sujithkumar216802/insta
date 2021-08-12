@@ -5,7 +5,6 @@ import 'package:insta_downloader/models/history_model.dart';
 import 'package:insta_downloader/utils/database_helper.dart';
 import 'package:insta_downloader/utils/downloader.dart';
 import 'package:insta_downloader/utils/file_checker.dart';
-import 'package:insta_downloader/utils/permission.dart';
 
 class Input extends StatelessWidget {
   final UrlController = TextEditingController();
@@ -60,7 +59,9 @@ class Input extends StatelessWidget {
     if (url == "https://www.instagram.com/reel/" ||
         url == "https://www.instagram.com/p/" ||
         url == "https://www.instagram.com/tv/" ||
-        (!url.startsWith("https://www.instagram.com/tv/") && !url.startsWith("https://www.instagram.com/p/") && !url.startsWith("https://www.instagram.com/reel/")) ||
+        (!url.startsWith("https://www.instagram.com/tv/") &&
+            !url.startsWith("https://www.instagram.com/p/") &&
+            !url.startsWith("https://www.instagram.com/reel/")) ||
         url.startsWith("https://www.instagram.com/stories")) {
       //show dialog
       showDialog(
