@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/ui/history_template.dart';
-import 'package:insta_downloader/utils/downloader.dart';
-import 'package:insta_downloader/utils/file_checker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
+
 
 import '../models/history_model.dart';
 import '../utils/database_helper.dart';
-import '../utils/file_checker.dart';
 
 class HistoryView extends StatefulWidget {
   const HistoryView({Key key}) : super(key: key);
@@ -23,14 +23,9 @@ class HistoryView extends StatefulWidget {
 
 class _HistoryViewState extends State<HistoryView> {
   List<History> list = [];
-  //TODO change to static function
-  FileChecker fileChecker = new FileChecker();
 
   _HistoryViewState() {
     DatabaseHelper.instance.getAllHistory().then((value) {
-      for (History x in value) {
-        FileChecker.checkAllFiles(x);
-      }
       setState(() {
         list = value;
       });
@@ -52,7 +47,6 @@ class _HistoryViewState extends State<HistoryView> {
     );
   }
 
-
   //TODO CHANGE EVERYTHING TO FIT THE PREVIEW
   void popUpMenuFunction(String value, int index) async {
     switch (value) {
@@ -62,47 +56,25 @@ class _HistoryViewState extends State<HistoryView> {
             : throw 'Could not launch ${list[index].url}';
         break;
       case 'share':
-        //TODO just download the files that are not available ig
-        if (FileChecker.checkAllFiles(list[index]) != 2) {
-          List<String> listFiles = [];
-          for (FileInfo x in list[index].files)
-            if (x.isAvailable) listFiles.add(x.file);
-          await Share.shareFiles(listFiles);
-        } else {
-          setState(() {});
+        List<File> files = [];
+        var uuid = Uuid();
+        Directory directory = await getApplicationDocumentsDirectory();
+        String dir = directory.path;
+        for(FileInfo x in list[index].files) {
+          if (x.type == 2)
+            files.add(File('$dir/' + uuid.v1() + '.mp4'));
+          else
+            files.add(File('$dir/' + uuid.v1() + '.jpg'));
+          await files[files.length - 1].writeAsBytes(x.file);
         }
+        Share.shareFiles(List<String>.generate(files.length, (index) => files[index].path));
         break;
       case 'caption':
         Clipboard.setData(ClipboardData(text: list[index].description));
         break;
       case 'delete':
-        FileChecker.checkAllFiles(list[index]);
-        for (FileInfo l in list[index].files) {
-          if (l.isAvailable) {
-            File f = File(l.file);
-            f.delete();
-          }
-        }
         await DatabaseHelper.instance.delete(list[index]);
         list.removeAt(index);
-        setState(() {});
-        break;
-      case 'download':
-        showDialog(
-            context: context,
-            builder: (_) => AlertDialog(
-                title: Text('Downloading'),
-                content: Align(
-                  child: Container(
-                      child: CircularProgressIndicator(),
-                      padding: EdgeInsets.all(10),
-                      width: MediaQuery.of(context).size.width / 5,
-                      height: MediaQuery.of(context).size.width / 5),
-                  alignment: Alignment.center,
-                  heightFactor: 1,
-                )));
-        await Downloader.updateHistory(list[index]);
-        Navigator.pop(context);
         setState(() {});
         break;
     }

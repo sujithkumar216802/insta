@@ -1,18 +1,19 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 class FileInfo {
-  int type;
-  String url;
-  String file;
-  bool isAvailable;
+  final int type;
+  final Uint8List file;
 
-  FileInfo(this.type, this.url);
+  static const Base64Codec base64 = Base64Codec();
 
-  FileInfo.all(this.type, this.url, this.file, this.isAvailable);
+  FileInfo(this.type, this.file);
 
   Map toJson() =>
-      {'type': type, 'url': url, 'file': file, 'available': isAvailable};
+      {'type': type, 'file': base64.encode(file)};
 
   factory FileInfo.fromJson(Map<String, dynamic> json) {
-    return FileInfo.all(json['type'] as int, json['url'] as String,
-        json['file'] as String, json['available'] as bool);
+    return FileInfo(json['type'] as int,
+        base64.decode(json['file']));
   }
 }

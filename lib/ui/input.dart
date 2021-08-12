@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:insta_downloader/models/history_model.dart';
 import 'package:insta_downloader/utils/database_helper.dart';
 import 'package:insta_downloader/utils/downloader.dart';
-import 'package:insta_downloader/utils/file_checker.dart';
 
 class Input extends StatelessWidget {
   final UrlController = TextEditingController();
@@ -73,55 +72,16 @@ class Input extends StatelessWidget {
       return;
     }
 
-    //check permission
-
-    // bool permission = await PermissionManager.getDownloadPermission();
-    // if (!permission) {
-    //   //show dialog
-    //   showDialog(
-    //       context: context,
-    //       builder: (_) => AlertDialog(
-    //             title: Text('Permission not granted'),
-    //             content: Text('Read, write permission is not granted'),
-    //           ));
-    //   return;
-    // }
-
-    //check duplicates
     List<String> urlList = await DatabaseHelper.instance.getUrls();
     for (String x in urlList) {
       if (x.contains(url)) {
-        //getting the history
-        History history = await DatabaseHelper.instance.getHistory(x);
-
-        if (FileChecker.checkAllFiles(history) == 0) {
-          //show dialog
-          showDialog(
-              context: context,
-              builder: (_) => AlertDialog(
-                    title: Text('Already Downloaded'),
-                    content: Text('Check History'),
-                  ));
-          return;
-        } else {
-          showDialog(
-              barrierDismissible: false,
-              context: context,
-              builder: (_) => AlertDialog(
-                  title: Text('Downloading'),
-                  content: Align(
-                    child: Container(
-                        child: CircularProgressIndicator(),
-                        padding: EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width / 5,
-                        height: MediaQuery.of(context).size.width / 5),
-                    alignment: Alignment.center,
-                    heightFactor: 1,
-                  )));
-          await Downloader.updateHistory(history);
-          Navigator.pop(context);
-          return;
-        }
+        showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: Text('Already Downloaded'),
+              content: Text('Check History'),
+            ));
+        return;
       }
     }
     showDialog(

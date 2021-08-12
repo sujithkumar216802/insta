@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:insta_downloader/models/file_info_model.dart';
-
 class Extractor {
   static const videoHeader = "\"video_url\":\"";
 
@@ -17,9 +15,10 @@ class Extractor {
 
   //extractor
   static extract(String html) {
-    List<FileInfo> temp = [];
-    List<FileInfo> temp2 = [];
-    Set<FileInfo> links = Set();
+    List<String> tempLinks = [];
+    List<int> tempType = [];
+    List<String> links = [];
+    List<int> type = [];
     String descriptionString = "";
     String thumbnailUrl = "";
     String accountTagString = "";
@@ -34,6 +33,10 @@ class Extractor {
     bool json = false;
     var jsonDict = {};
     int linkStartIndex, linkEndIndex;
+
+    String temp;
+
+    //TODO fool proof... basically using json instead of this
 
     for (int i = 0; i < html.length; i++) {
       //VIDEO LINKS
@@ -55,7 +58,9 @@ class Extractor {
 
         if (videoFooterIndex == videoFooter.length) {
           linkEndIndex = i - videoFooter.length + 1;
-          temp.add(FileInfo(2, html.substring(linkStartIndex, linkEndIndex)));
+          temp = html.substring(linkStartIndex, linkEndIndex);
+          tempLinks.add(temp.replaceAll("\\u0026", '&'));
+          tempType.add(2);
           video = false;
           videoHeaderIndex = 0;
           videoFooterIndex = 0;
@@ -81,7 +86,9 @@ class Extractor {
 
         if (displayFooterIndex == displayFooter.length) {
           linkEndIndex = i - displayFooter.length + 1;
-          temp.add(FileInfo(1, html.substring(linkStartIndex, linkEndIndex)));
+          temp = html.substring(linkStartIndex, linkEndIndex);
+          tempLinks.add(temp.replaceAll("\\u0026", '&'));
+          tempType.add(1);
           display = false;
           displayHeaderIndex = 0;
           displayFooterIndex = 0;
@@ -115,32 +122,31 @@ class Extractor {
       }
     }
 
-    thumbnailUrl = temp[0].url;
+    thumbnailUrl = tempLinks[0];
     //thumbnail for video posts and multi photo
-    if (temp.length > 1) temp.removeAt(0);
+    if (tempLinks.length > 1) {
+      tempLinks.removeAt(0);
+      tempType.removeAt(0);
+    }
 
     //removing useless links
-    for (int i = temp.length - 1; i >= 0; i--) {
-      temp2.add(temp[i]);
-      if (temp[i].type == 2) {
+    for (int i = tempLinks.length - 1; i >= 0; i--) {
+      links.add(tempLinks[i]);
+      type.add(tempType[i]);
+      if (tempType[i] == 2) {
         i--;
       }
     }
 
-    //cleaning up the link TODO fool proof... basically using json instead of this
-    for (FileInfo x in temp2)
-      links.add(FileInfo(x.type, x.url.replaceAll("\\u0026", '&')));
-    thumbnailUrl = thumbnailUrl.replaceAll("\\u0026", '&');
-
     if (jsonDict['caption'] != null) descriptionString = jsonDict['caption'];
     accountTagString = jsonDict['author']['alternateName'];
 
-    var returnValue = {
-      "links": links.toList(),
+    return {
+      "links": links,
+      "type": type,
       "description": descriptionString,
       "thumbnail_url": thumbnailUrl,
       "account_tag": accountTagString,
     };
-    return returnValue;
   }
 }

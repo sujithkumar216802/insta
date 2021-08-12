@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:insta_downloader/ui/pop_up_menu.dart';
 import 'package:insta_downloader/ui/video_player.dart';
-import 'package:insta_downloader/utils/file_checker.dart';
 
 import '../models/history_model.dart';
 
@@ -77,13 +74,11 @@ class HistoryTemplate extends StatelessWidget {
                     child: TripleDot(
                       function: function,
                       index: index,
-                      type: FileChecker.checkAllFiles(history),
                     ),
                   )
                 ],
               ),
             ),
-            //TODO NOT MESS UP THE PREVIEW WHEN FILES ARE MISSING OR SOMETHING
             Container(
               height: MediaQuery.of(context).size.width,
               child: ListView.builder(
@@ -102,16 +97,11 @@ class HistoryTemplate extends StatelessWidget {
     );
   }
 
-
   show(int index) {
-    File file = new File(history.files[index].file);
-
-    if(history.files[index].type==2) {
-      return VideoP(video: file);
-    }
-    else {
-      return Image.file(file);
+    if (history.files[index].type == 2) {
+      return VideoP(video: history.files[index].file);
+    } else {
+      return Image.memory(history.files[index].file);
     }
   }
-
 }

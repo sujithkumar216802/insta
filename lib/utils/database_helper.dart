@@ -12,7 +12,6 @@ class DatabaseHelper {
   static const columnUrl = 'url';
   static const columnThumbnail = 'thumbnail';
   static const columnFiles = 'files';
-  static const columnAvailable = 'isAvailableOnline';
   static const columnDescription = 'description';
   static const columnAccountTag = 'tag';
 
@@ -38,8 +37,7 @@ class DatabaseHelper {
       CREATE TABLE $_tableName(
       $columnUrl TINYTEXT PRIMARY KEY,
       $columnThumbnail LONGTEXT,
-      $columnAvailable BOOL,
-      $columnFiles MEDIUMTEXT,
+      $columnFiles LONGTEXT,
       $columnDescription MEDIUMTEXT,
       $columnAccountTag TEXT
       )
