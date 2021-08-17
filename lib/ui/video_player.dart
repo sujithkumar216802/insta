@@ -37,7 +37,7 @@ class _VideoPState extends State<VideoP> {
       alignment: Alignment.center,
       children: [
         Container(
-          child: _controller.value.isInitialized
+          child: (_controller != null && _controller.value.isInitialized)
               ? AspectRatio(
                   aspectRatio: _controller.value.aspectRatio,
                   child: VideoPlayer(_controller),
@@ -46,14 +46,18 @@ class _VideoPState extends State<VideoP> {
         ),
         GestureDetector(
             onTap: () {
-              setState(() {
-                _controller.value.isPlaying
-                    ? _controller.pause()
-                    : _controller.play();
-              });
+              if (_controller != null) {
+                setState(() {
+                  _controller.value.isPlaying
+                      ? _controller.pause()
+                      : _controller.play();
+                });
+              }
             },
             child: Icon(
-              _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+              (_controller != null && _controller.value.isPlaying)
+                  ? Icons.pause
+                  : Icons.play_arrow,
               size: 60,
               color: Colors.white,
             ))
