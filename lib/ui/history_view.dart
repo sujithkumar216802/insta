@@ -63,7 +63,7 @@ class _HistoryViewState extends State<HistoryView> {
         break;
       case 'share':
         //TODO just download the files that are not available ig
-        if (FileChecker.checkAllFiles(list[index]) != 2) {
+        if (FileChecker.checkAllFiles(list[index])[0] != 2) {
           List<String> listFiles = [];
           for (FileInfo x in list[index].files)
             if (x.isAvailable) listFiles.add(x.file);

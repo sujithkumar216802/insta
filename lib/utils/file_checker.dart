@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/models/history_model.dart';
 
 import 'database_helper.dart';
@@ -12,22 +11,27 @@ available = 2 :- no availabiility
 */
 
 class FileChecker {
-  static int checkAllFiles(History history) {
+  static checkAllFiles(History history) {
     //updating the file availability info
     bool change = false;
     int available = 0;
-    for (FileInfo x in history.files) {
-      if (x.isAvailable != File(x.file).existsSync()) {
-        x.isAvailable = !x.isAvailable;
+    List<int> indexes = [];
+
+    for (int i = 0; i < history.files.length; i++) {
+      if (history.files[i].isAvailable !=
+          File(history.files[i].file).existsSync()) {
+        history.files[i].isAvailable = !history.files[i].isAvailable;
         change = true;
       }
-      if (!x.isAvailable) available++;
+
+      if (history.files[i].isAvailable) indexes.add(i);
     }
+
     if (change) DatabaseHelper.instance.update(history);
 
-    if (available == history.files.length)
-      available = 2;
-    else if (available != 0) available = 1;
-    return available;
+    if (indexes.length == history.files.length)
+      available = 0;
+    else if (indexes.length != 0) available = 1;
+    return [available, indexes];
   }
 }

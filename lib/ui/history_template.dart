@@ -37,6 +37,10 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
 
   @override
   Widget build(BuildContext context) {
+    List temp = FileChecker.checkAllFiles(history);
+    int type = temp[0];
+    List<int> indexes = temp[1];
+
     return ListTile(
       title: Container(
         margin: EdgeInsets.fromLTRB(0, MediaQuery.of(context).size.width / 25,
@@ -85,7 +89,7 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                   child: TripleDot(
                     function: function,
                     index: index,
-                    type: FileChecker.checkAllFiles(history),
+                    type: type,
                   ),
                 )
               ],
@@ -106,15 +110,14 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                 Text("POSTS AHAHAHAHA")
               ],
             ),
-            //TODO NOT MESS UP THE PREVIEW WHEN FILES ARE MISSING OR SOMETHING
             (showFiles)
                 ? Container(
                     height: MediaQuery.of(context).size.width,
                     child: ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        itemCount: history.files.length,
+                        itemCount: indexes.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return show(index);
+                          return show(indexes[index]);
                         }),
                   )
                 : Container()
@@ -128,10 +131,9 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
     File file = new File(history.files[index].file);
 
     if (history.files[index].type == 2) {
-      return VideoP(video: file);
+      return VideoPlayerWidget(video: file);
     } else {
       return Image.file(file);
     }
   }
-
 }

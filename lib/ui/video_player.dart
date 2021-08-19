@@ -4,20 +4,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
-class VideoP extends StatefulWidget {
-  const VideoP({Key key, @required this.video}) : super(key: key);
+class VideoPlayerWidget extends StatefulWidget {
+  const VideoPlayerWidget({Key key, @required this.video}) : super(key: key);
 
   final File video;
 
   @override
-  _VideoPState createState() => _VideoPState(video);
+  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState(video);
 }
 
-class _VideoPState extends State<VideoP> {
+class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   File video;
   VideoPlayerController _controller;
 
-  _VideoPState(File video) {
+  _VideoPlayerWidgetState(File video) {
     this.video = video;
   }
 

@@ -94,7 +94,7 @@ class Input extends StatelessWidget {
         //getting the history
         History history = await DatabaseHelper.instance.getHistory(x);
 
-        if (FileChecker.checkAllFiles(history) == 0) {
+        if (FileChecker.checkAllFiles(history)[0] == 0) {
           //show dialog
           showDialog(
               context: context,
