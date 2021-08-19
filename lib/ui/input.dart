@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/models/history_model.dart';
 import 'package:insta_downloader/utils/database_helper.dart';
 import 'package:insta_downloader/utils/downloader.dart';
@@ -73,20 +74,6 @@ class Input extends StatelessWidget {
       return;
     }
 
-    //check permission
-
-    // bool permission = await PermissionManager.getDownloadPermission();
-    // if (!permission) {
-    //   //show dialog
-    //   showDialog(
-    //       context: context,
-    //       builder: (_) => AlertDialog(
-    //             title: Text('Permission not granted'),
-    //             content: Text('Read, write permission is not granted'),
-    //           ));
-    //   return;
-    // }
-
     //check duplicates
     List<String> urlList = await DatabaseHelper.instance.getUrls();
     for (String x in urlList) {
@@ -94,7 +81,12 @@ class Input extends StatelessWidget {
         //getting the history
         History history = await DatabaseHelper.instance.getHistory(x);
 
-        if (FileChecker.checkAllFiles(history)[0] == 0) {
+        Map temp = FileChecker.checkAllFiles(history);
+        int type = temp['type'];
+        List<int> indexes = temp['available_indexes'];
+        List<FileInfo> notAvailable = temp['not_available'];
+
+        if (type == 0) {
           //show dialog
           showDialog(
               context: context,
@@ -118,7 +110,7 @@ class Input extends StatelessWidget {
                     alignment: Alignment.center,
                     heightFactor: 1,
                   )));
-          await Downloader.updateHistory(history);
+          await Downloader.updateHistory(notAvailable);
           Navigator.pop(context);
           return;
         }

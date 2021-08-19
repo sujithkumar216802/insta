@@ -37,9 +37,9 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
 
   @override
   Widget build(BuildContext context) {
-    List temp = FileChecker.checkAllFiles(history);
-    int type = temp[0];
-    List<int> indexes = temp[1];
+    Map temp = FileChecker.checkAllFiles(history);
+    int type = temp['type'];
+    List<int> indexes = temp['available_indexes'];
 
     return ListTile(
       title: Container(
@@ -130,10 +130,9 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
   show(int index) {
     File file = new File(history.files[index].file);
 
-    if (history.files[index].type == 2) {
+    if (history.files[index].type == 2)
       return VideoPlayerWidget(video: file);
-    } else {
+    else
       return Image.file(file);
-    }
   }
 }
