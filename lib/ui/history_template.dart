@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:insta_downloader/ui/pop_up_menu.dart';
 import 'package:insta_downloader/ui/video_player.dart';
-import 'package:insta_downloader/utils/file_checker.dart';
 
 import '../models/history_model.dart';
 
@@ -37,10 +36,6 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
 
   @override
   Widget build(BuildContext context) {
-    Map temp = FileChecker.checkAllFiles(history);
-    int type = temp['type'];
-    List<int> indexes = temp['available_indexes'];
-
     return ListTile(
       title: Container(
         margin: EdgeInsets.fromLTRB(0, MediaQuery.of(context).size.width / 25,
@@ -89,7 +84,6 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                   child: TripleDot(
                     function: function,
                     index: index,
-                    type: type,
                   ),
                 )
               ],
@@ -115,9 +109,9 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                     height: MediaQuery.of(context).size.width,
                     child: ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        itemCount: indexes.length,
+                        itemCount: history.files.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return show(indexes[index]);
+                          return show(index);
                         }),
                   )
                 : Container()

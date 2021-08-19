@@ -1,11 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:insta_downloader/models/file_info_model.dart';
-import 'package:insta_downloader/models/history_model.dart';
 import 'package:insta_downloader/utils/database_helper.dart';
 import 'package:insta_downloader/utils/downloader.dart';
-import 'package:insta_downloader/utils/file_checker.dart';
 
 class Input extends StatelessWidget {
   final UrlController = TextEditingController();
@@ -78,42 +75,14 @@ class Input extends StatelessWidget {
     List<String> urlList = await DatabaseHelper.instance.getUrls();
     for (String x in urlList) {
       if (x.contains(url)) {
-        //getting the history
-        History history = await DatabaseHelper.instance.getHistory(x);
-
-        Map temp = FileChecker.checkAllFiles(history);
-        int type = temp['type'];
-        List<int> indexes = temp['available_indexes'];
-        List<FileInfo> notAvailable = temp['not_available'];
-
-        if (type == 0) {
-          //show dialog
-          showDialog(
-              context: context,
-              builder: (_) => AlertDialog(
-                    title: Text('Already Downloaded'),
-                    content: Text('Check History'),
-                  ));
-          return;
-        } else {
-          showDialog(
-              barrierDismissible: false,
-              context: context,
-              builder: (_) => AlertDialog(
-                  title: Text('Downloading'),
-                  content: Align(
-                    child: Container(
-                        child: CircularProgressIndicator(),
-                        padding: EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width / 5,
-                        height: MediaQuery.of(context).size.width / 5),
-                    alignment: Alignment.center,
-                    heightFactor: 1,
-                  )));
-          await Downloader.updateHistory(notAvailable);
-          Navigator.pop(context);
-          return;
-        }
+        //show dialog
+        showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+                  title: Text('Already Downloaded'),
+                  content: Text('Check History'),
+                ));
+        return;
       }
     }
     showDialog(

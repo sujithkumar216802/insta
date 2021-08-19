@@ -39,17 +39,6 @@ class Downloader {
         values['links'], values['description'], values['account_tag']));
   }
 
-  static updateHistory(List<FileInfo> list) async {
-    File file;
-
-    //post download
-    for (FileInfo url in list) {
-      var response = await http.get(Uri.parse(url.url));
-      file = new File(url.file);
-      await file.writeAsBytes(response.bodyBytes);
-    }
-  }
-
   static getDetails(String url) async {
     try {
       var response = await http.get(Uri.parse(url));
