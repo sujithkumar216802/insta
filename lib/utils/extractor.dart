@@ -3,111 +3,57 @@ import 'dart:convert';
 import 'package:insta_downloader/models/file_info_model.dart';
 
 class Extractor {
-  static const videoHeader = "\"video_url\":\"";
+  static const jsonHeader = [
+    '<script type="application/ld+json">',
+    'window._sharedData = '
+  ];
 
-  static const videoFooter = "\",";
-
-  static const displayHeader = "\"display_url\":\"";
-
-  static const displayFooter = "\",";
-
-  static const jsonHeader = '<script type="application/ld+json">';
-
-  static const jsonFooter = "</script>";
+  static const jsonFooter = ['</script>', ';</script>'];
 
   //extractor
   static extract(String html) {
-    List<FileInfo> temp = [];
-    List<FileInfo> temp2 = [];
-    Set<FileInfo> links = Set();
+    List<FileInfo> links = [];
     String descriptionString = "";
     String thumbnailUrl = "";
     String accountTagString = "";
-    int videoFooterIndex = 0;
-    int videoHeaderIndex = 0;
-    int displayHeaderIndex = 0;
-    int displayFooterIndex = 0;
     int jsonHeaderIndex = 0;
     int jsonFooterIndex = 0;
-    bool video = false;
-    bool display = false;
     bool json = false;
-    var jsonDict = {};
+    var detailsJsonDict = {};
+    var valuesJsonDict = {};
+    int jsonIndex = 0;
     int linkStartIndex, linkEndIndex;
 
     for (int i = 0; i < html.length; i++) {
-      //VIDEO LINKS
-      if (!video) {
-        if (videoHeader[videoHeaderIndex] == html[i])
-          videoHeaderIndex++;
-        else
-          videoHeaderIndex = 0;
-
-        if (videoHeader.length == videoHeaderIndex) {
-          video = true;
-          linkStartIndex = i + 1;
-        }
-      } else {
-        if (videoFooter[videoFooterIndex] == html[i])
-          videoFooterIndex++;
-        else
-          videoFooterIndex = 0;
-
-        if (videoFooterIndex == videoFooter.length) {
-          linkEndIndex = i - videoFooter.length + 1;
-          temp.add(FileInfo(2, html.substring(linkStartIndex, linkEndIndex)));
-          video = false;
-          videoHeaderIndex = 0;
-          videoFooterIndex = 0;
-        }
-      }
-
-      //Display LINKS
-      if (!display) {
-        if (displayHeader[displayHeaderIndex] == html[i])
-          displayHeaderIndex++;
-        else
-          displayHeaderIndex = 0;
-
-        if (displayHeader.length == displayHeaderIndex) {
-          display = true;
-          linkStartIndex = i + 1;
-        }
-      } else {
-        if (displayFooter[displayFooterIndex] == html[i])
-          displayFooterIndex++;
-        else
-          displayFooterIndex = 0;
-
-        if (displayFooterIndex == displayFooter.length) {
-          linkEndIndex = i - displayFooter.length + 1;
-          temp.add(FileInfo(1, html.substring(linkStartIndex, linkEndIndex)));
-          display = false;
-          displayHeaderIndex = 0;
-          displayFooterIndex = 0;
-        }
-      }
-
       //json LINKS
       if (!json) {
-        if (jsonHeader[jsonHeaderIndex] == html[i])
+        if (jsonHeader[0][jsonHeaderIndex] == html[i]) {
           jsonHeaderIndex++;
-        else
+          jsonIndex = 0;
+        } else if (jsonHeader[1][jsonHeaderIndex] == html[i]) {
+          jsonHeaderIndex++;
+          jsonIndex = 1;
+        } else
           jsonHeaderIndex = 0;
 
-        if (jsonHeader.length == jsonHeaderIndex) {
+        if (jsonHeader[jsonIndex].length == jsonHeaderIndex) {
           json = true;
           linkStartIndex = i + 1;
         }
       } else {
-        if (jsonFooter[jsonFooterIndex] == html[i])
+        if (jsonFooter[jsonIndex][jsonFooterIndex] == html[i])
           jsonFooterIndex++;
         else
           jsonFooterIndex = 0;
 
-        if (jsonFooterIndex == jsonFooter.length) {
-          linkEndIndex = i - jsonFooter.length + 1;
-          jsonDict = jsonDecode(html.substring(linkStartIndex, linkEndIndex));
+        if (jsonFooterIndex == jsonFooter[jsonIndex].length) {
+          linkEndIndex = i - jsonFooter[jsonIndex].length + 1;
+          if (jsonIndex == 0)
+            detailsJsonDict =
+                jsonDecode(html.substring(linkStartIndex, linkEndIndex));
+          else
+            valuesJsonDict =
+                jsonDecode(html.substring(linkStartIndex, linkEndIndex));
           json = false;
           jsonHeaderIndex = 0;
           jsonFooterIndex = 0;
@@ -115,28 +61,29 @@ class Extractor {
       }
     }
 
-    thumbnailUrl = temp[0].url;
-    //thumbnail for video posts and multi photo
-    if (temp.length > 1) temp.removeAt(0);
-
-    //removing useless links
-    for (int i = temp.length - 1; i >= 0; i--) {
-      temp2.add(temp[i]);
-      if (temp[i].type == 2) {
-        i--;
+    valuesJsonDict =
+        valuesJsonDict['entry_data']['PostPage'][0]['graphql']['shortcode_media'];
+    thumbnailUrl = valuesJsonDict['display_url'];
+    if(valuesJsonDict['is_video']) {
+      links.add(FileInfo(2, valuesJsonDict['video_url']));
+    }
+    else {
+      var valuesArray = valuesJsonDict['edge_sidecar_to_children']['edges'];
+      for (int i = 0; i < valuesArray.length; i++) {
+        if (valuesArray[i]['node']['is_video']) {
+          links.add(FileInfo(2, valuesArray[i]['node']['video_url']));
+        } else {
+          links.add(FileInfo(1, valuesArray[i]['node']['display_url']));
+        }
       }
     }
 
-    //cleaning up the link TODO fool proof... basically using json instead of this
-    for (FileInfo x in temp2)
-      links.add(FileInfo(x.type, x.url.replaceAll("\\u0026", '&')));
-    thumbnailUrl = thumbnailUrl.replaceAll("\\u0026", '&');
-
-    if (jsonDict['caption'] != null) descriptionString = jsonDict['caption'];
-    accountTagString = jsonDict['author']['alternateName'];
+    if (detailsJsonDict['caption'] != null)
+      descriptionString = detailsJsonDict['caption'];
+    accountTagString = detailsJsonDict['author']['alternateName'];
 
     var returnValue = {
-      "links": links.toList(),
+      "links": links,
       "description": descriptionString,
       "thumbnail_url": thumbnailUrl,
       "account_tag": accountTagString,
