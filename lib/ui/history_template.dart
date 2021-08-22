@@ -53,10 +53,11 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                 Flexible(
                     flex: 3,
                     fit: FlexFit.tight,
-                    child: Container(
-                        width: MediaQuery.of(context).size.width / 5,
-                        height: MediaQuery.of(context).size.width / 5,
-                        child: Image.memory(history.thumbnail))),
+                    child: Image.memory(
+                      history.thumbnail,
+                      width: MediaQuery.of(context).size.width / 5,
+                      height: MediaQuery.of(context).size.width / 5,
+                    )),
                 Flexible(
                     flex: 11,
                     fit: FlexFit.tight,
@@ -64,8 +65,15 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          child: Text(history.tag,
-                              overflow: TextOverflow.ellipsis),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Image.memory(history.accountPhoto,
+                                  height: 18, width: 18),
+                              Text(' ' + history.tag,
+                                  overflow: TextOverflow.ellipsis)
+                            ],
+                          ),
                           padding: EdgeInsets.fromLTRB(
                               MediaQuery.of(context).size.width / 50,
                               MediaQuery.of(context).size.width / 50,

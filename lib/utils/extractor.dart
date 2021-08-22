@@ -13,6 +13,7 @@ class Extractor {
     String descriptionString = "";
     String thumbnailUrl = "";
     String accountName = "";
+    String accountPhotoUrl = "";
     int jsonHeaderIndex = 0;
     int jsonFooterIndex = 0;
     bool json = false;
@@ -53,6 +54,7 @@ class Extractor {
     valuesJsonDict = valuesJsonDict['entry_data']['PostPage'][0]['graphql']
         ['shortcode_media'];
     thumbnailUrl = valuesJsonDict['display_resources'][0]['src'];
+    accountPhotoUrl = valuesJsonDict['owner']['profile_pic_url'];
     accountName = valuesJsonDict['owner']['username'];
     if (valuesJsonDict['edge_media_to_caption']['edges'].length > 0)
       descriptionString =
@@ -77,6 +79,7 @@ class Extractor {
       "description": descriptionString,
       "thumbnail_url": thumbnailUrl,
       "account_tag": accountName,
+      "account_pic_url": accountPhotoUrl
     };
   }
 }
