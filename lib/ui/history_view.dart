@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/ui/history_template.dart';
-import 'package:insta_downloader/utils/downloader.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -36,6 +35,7 @@ class _HistoryViewState extends State<HistoryView> {
           itemCount: list.length,
           itemBuilder: (BuildContext context, int index) {
             return HistoryTemplate(
+                key: ValueKey(list[index].url),
                 history: list[index],
                 index: index,
                 function: popUpMenuFunction);
