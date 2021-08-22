@@ -41,6 +41,7 @@ class _HistoryViewState extends State<HistoryView> {
           itemCount: list.length,
           itemBuilder: (BuildContext context, int index) {
             return HistoryTemplate(
+                key: ValueKey(list[index].url),
                 history: list[index],
                 index: index,
                 function: popUpMenuFunction);
