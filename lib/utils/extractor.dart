@@ -44,9 +44,7 @@ class Extractor {
           linkEndIndex = i - jsonFooter.length + 1;
           valuesJsonDict =
               jsonDecode(html.substring(linkStartIndex, linkEndIndex));
-          json = false;
-          jsonHeaderIndex = 0;
-          jsonFooterIndex = 0;
+          break;
         }
       }
     }
