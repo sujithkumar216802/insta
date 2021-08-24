@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/ui/pop_up_menu.dart';
 import 'package:insta_downloader/ui/video_player.dart';
 
@@ -38,8 +39,8 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
   Widget build(BuildContext context) {
     return ListTile(
       title: Container(
-        margin: EdgeInsets.fromLTRB(0, MediaQuery.of(context).size.width / 25,
-            0, MediaQuery.of(context).size.width / 20),
+        margin: EdgeInsets.fromLTRB(
+            0, 0, 0, MediaQuery.of(context).size.width / 25),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -61,10 +62,18 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                       children: [
                         Container(
                           child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Image.memory(history.accountPhoto,
-                                  height: 18, width: 18),
+                              Container(
+                                width: 18,
+                                height: 18,
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                        fit: BoxFit.fill,
+                                        image:
+                                            MemoryImage(history.accountPhoto))),
+                              ),
                               Text(' ' + history.tag,
                                   overflow: TextOverflow.ellipsis)
                             ],
@@ -106,21 +115,26 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                     });
                   },
                   child: (showFiles)
-                      ? Icon(Icons.arrow_drop_up_outlined)
-                      : Icon(Icons.arrow_drop_down_outlined),
+                      ? Icon(
+                          Icons.arrow_drop_up_outlined,
+                          size: 32,
+                        )
+                      : Icon(
+                          Icons.arrow_drop_down_outlined,
+                          size: 32,
+                        ),
                 ),
-                Text("POSTS AHAHAHAHA")
+                Text("Show Posts")
               ],
             ),
             (showFiles)
                 ? Container(
                     height: MediaQuery.of(context).size.width,
-                    child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: history.files.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return show(index);
-                        }),
+                    width: MediaQuery.of(context).size.width,
+                    child: PageView(
+                      pageSnapping: true,
+                      children: history.files.map((e) => show(e)).toList(),
+                    ),
                   )
                 : Container()
           ],
@@ -129,10 +143,10 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
     );
   }
 
-  show(int index) {
-    File file = new File(history.files[index].file);
+  Widget show(FileInfo fileInfo) {
+    File file = new File(fileInfo.file);
 
-    if (history.files[index].type == 2)
+    if (fileInfo.type == 2)
       return VideoPlayerWidget(video: file);
     else
       return Image.file(file);
