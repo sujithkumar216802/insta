@@ -36,14 +36,12 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     return Stack(
       alignment: Alignment.center,
       children: [
-        Container(
-          child: (_controller != null && _controller.value.isInitialized)
-              ? AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
-                  child: VideoPlayer(_controller),
-                )
-              : Container(),
-        ),
+        (_controller != null && _controller.value.isInitialized)
+            ? AspectRatio(
+                aspectRatio: _controller.value.aspectRatio,
+                child: VideoPlayer(_controller),
+              )
+            : Container(),
         GestureDetector(
             onTap: () {
               if (_controller != null) {

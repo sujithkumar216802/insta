@@ -43,8 +43,8 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
 
     return ListTile(
       title: Container(
-        margin: EdgeInsets.fromLTRB(0, MediaQuery.of(context).size.width / 25,
-            0, MediaQuery.of(context).size.width / 20),
+        margin: EdgeInsets.fromLTRB(
+            0, 0, 0, MediaQuery.of(context).size.width / 25),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -66,10 +66,18 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                       children: [
                         Container(
                           child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Image.memory(history.accountPhoto,
-                                  height: 18, width: 18),
+                              Container(
+                                width: 18,
+                                height: 18,
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                        fit: BoxFit.fill,
+                                        image:
+                                            MemoryImage(history.accountPhoto))),
+                              ),
                               Text(' ' + history.tag,
                                   overflow: TextOverflow.ellipsis)
                             ],
@@ -103,7 +111,7 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
               ],
             ),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 GestureDetector(
                   onTap: () {
@@ -112,21 +120,26 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                     });
                   },
                   child: (showFiles)
-                      ? Icon(Icons.arrow_drop_up_outlined)
-                      : Icon(Icons.arrow_drop_down_outlined),
+                      ? Icon(
+                          Icons.arrow_drop_up_outlined,
+                          size: 32,
+                        )
+                      : Icon(
+                          Icons.arrow_drop_down_outlined,
+                          size: 32,
+                        ),
                 ),
-                Text("POSTS AHAHAHAHA")
+                Text("Show Posts")
               ],
             ),
             (showFiles)
                 ? Container(
                     height: MediaQuery.of(context).size.width,
-                    child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: indexes.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return show(indexes[index]);
-                        }),
+                    width: MediaQuery.of(context).size.width,
+                    child: PageView(
+                      pageSnapping: true,
+                      children: indexes.map((e) => show(e)).toList(),
+                    ),
                   )
                 : Container()
           ],
@@ -135,7 +148,7 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
     );
   }
 
-  show(int index) {
+  Widget show(int index) {
     File file = new File(history.files[index].file);
 
     if (history.files[index].type == 2)
