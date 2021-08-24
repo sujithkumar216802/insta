@@ -11,6 +11,7 @@ class DatabaseHelper {
   static const _dbVersion = 1;
   static const columnUrl = 'url';
   static const columnThumbnail = 'thumbnail';
+  static const columnAccountPhoto = 'account_photo';
   static const columnFiles = 'files';
   static const columnDescription = 'description';
   static const columnAccountTag = 'tag';
@@ -37,6 +38,7 @@ class DatabaseHelper {
       CREATE TABLE $_tableName(
       $columnUrl TINYTEXT PRIMARY KEY,
       $columnThumbnail LONGTEXT,
+      $columnAccountPhoto LONGTEXT,
       $columnFiles MEDIUMTEXT,
       $columnDescription MEDIUMTEXT,
       $columnAccountTag TEXT

@@ -5,7 +5,6 @@ import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/utils/database_helper.dart';
 import 'package:insta_downloader/utils/extractor.dart';
 import 'package:path_provider/path_provider.dart';
-
 import 'package:uuid/uuid.dart';
 
 import '../models/history_model.dart';
@@ -31,12 +30,19 @@ class Downloader {
       url.file = file.path;
     }
 
-    //thumbnail
-    var response = await http.get(Uri.parse(values["thumbnail_url"]));
+    var thumbnail = await http.get(Uri.parse(values["thumbnail_url"]));
+
+    //account photo
+    var accountPhoto = await http.get(Uri.parse(values["account_pic_url"]));
 
     //insert into db
-    await DatabaseHelper.instance.insert(History(postUrl, response.bodyBytes,
-        values['links'], values['description'], values['account_tag']));
+    await DatabaseHelper.instance.insert(History(
+        postUrl,
+        thumbnail.bodyBytes,
+        accountPhoto.bodyBytes,
+        values['links'],
+        values['description'],
+        values['account_tag']));
   }
 
   static getDetails(String url) async {
