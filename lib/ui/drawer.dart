@@ -11,8 +11,17 @@ class MyDrawer extends StatelessWidget {
     return Drawer(
       child: ListView(
         children: [
-          DrawerHeader(
-            child: Text('Instagram Downloader'),
+          UserAccountsDrawerHeader(
+            accountEmail: Text("instagram.com"),
+            accountName: Text("Instagram Downloader"),
+            currentAccountPicture: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: Image.asset(
+                "assets/images/icon.png",
+                fit: BoxFit.cover,
+              ),
+            ),
+            decoration: BoxDecoration(color: Colors.blue),
           ),
           ListTile(
             title: Text('Home'),
