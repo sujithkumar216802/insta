@@ -110,16 +110,16 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                 )
               ],
             ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      showFiles = !showFiles;
-                    });
-                  },
-                  child: (showFiles)
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  showFiles = !showFiles;
+                });
+              },
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  (showFiles)
                       ? Icon(
                           Icons.arrow_drop_up_outlined,
                           size: 32,
@@ -128,9 +128,9 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                           Icons.arrow_drop_down_outlined,
                           size: 32,
                         ),
-                ),
-                Text("Show Posts")
-              ],
+                  Text("Show Posts")
+                ],
+              ),
             ),
             (showFiles)
                 ? Container(
