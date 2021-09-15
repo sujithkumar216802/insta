@@ -42,7 +42,8 @@ class Downloader {
         accountPhoto.bodyBytes,
         values['links'],
         values['description'],
-        values['account_tag']));
+        values['account_tag'],
+        values['ratio']));
   }
 
   static getDetails(String url) async {

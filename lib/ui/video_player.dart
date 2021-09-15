@@ -6,21 +6,26 @@ import 'package:insta_downloader/ui/pop_up_menu.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
-  const VideoPlayerWidget({Key key, @required this.video, @required this.function, @required this.index}) : super(key: key);
+  const VideoPlayerWidget(
+      {Key key,
+      @required this.video,
+      @required this.function,
+      @required this.index})
+      : super(key: key);
 
   final File video;
   final function;
   final int index;
 
   @override
-  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState(video, function, index);
+  _VideoPlayerWidgetState createState() =>
+      _VideoPlayerWidgetState(video, function, index);
 }
 
 class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   final File video;
   final function;
   final int index;
-
 
   VideoPlayerController _controller;
 
@@ -41,14 +46,12 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     return Stack(
       alignment: Alignment.center,
       children: [
-        Container(
-          child: (_controller != null && _controller.value.isInitialized)
-              ? AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
-                  child: VideoPlayer(_controller),
-                )
-              : Container(),
-        ),
+        (_controller != null && _controller.value.isInitialized)
+            ? AspectRatio(
+                aspectRatio: _controller.value.aspectRatio,
+                child: VideoPlayer(_controller),
+              )
+            : Container(),
         GestureDetector(
             onTap: () {
               if (_controller != null) {

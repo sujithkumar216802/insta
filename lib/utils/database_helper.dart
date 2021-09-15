@@ -15,6 +15,7 @@ class DatabaseHelper {
   static const columnFiles = 'files';
   static const columnDescription = 'description';
   static const columnAccountTag = 'tag';
+  static const columnRatio = 'ratio';
 
   DatabaseHelper._privateConstructor();
 
@@ -41,7 +42,8 @@ class DatabaseHelper {
       $columnAccountPhoto LONGTEXT,
       $columnFiles MEDIUMTEXT,
       $columnDescription MEDIUMTEXT,
-      $columnAccountTag TEXT
+      $columnAccountTag TEXT,
+      $columnRatio FLOAT
       )
       ''');
   }

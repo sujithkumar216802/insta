@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:insta_downloader/models/file_info_model.dart';
 
@@ -19,6 +20,7 @@ class Extractor {
     bool json = false;
     var valuesJsonDict = {};
     int linkStartIndex, linkEndIndex;
+    double ratio = 1;
 
     for (int i = 0; i < html.length; i++) {
       //json LINKS
@@ -54,6 +56,7 @@ class Extractor {
     thumbnailUrl = valuesJsonDict['display_resources'][0]['src'];
     accountPhotoUrl = valuesJsonDict['owner']['profile_pic_url'];
     accountName = valuesJsonDict['owner']['username'];
+    ratio = max(1, valuesJsonDict['dimensions']['width']/valuesJsonDict['dimensions']['height']);
     if (valuesJsonDict['edge_media_to_caption']['edges'].length > 0)
       descriptionString =
           valuesJsonDict['edge_media_to_caption']['edges'][0]['node']['text'];
@@ -77,7 +80,8 @@ class Extractor {
       "description": descriptionString,
       "thumbnail_url": thumbnailUrl,
       "account_tag": accountName,
-      "account_pic_url": accountPhotoUrl
+      "account_pic_url": accountPhotoUrl,
+      'ratio': ratio
     };
   }
 }
