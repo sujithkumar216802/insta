@@ -135,9 +135,8 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
               ),
             ),
             (showFiles)
-                ? Container(
-                    height: MediaQuery.of(context).size.width,
-                    width: MediaQuery.of(context).size.width,
+                ? AspectRatio(
+                    aspectRatio: history.ratio,
                     child: PageView(
                       pageSnapping: true,
                       children: indexes.map((e) => show(e)).toList(),
@@ -154,18 +153,17 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
     File file = new File(history.files[index].file);
 
     if (history.files[index].type == 2)
-      return VideoPlayerWidget(video: file, function : popUpMenuFunction, index: index);
+      return VideoPlayerWidget(
+          video: file, function: popUpMenuFunction, index: index);
     else
       return ImageWidget(file: file, function: popUpMenuFunction, index: index);
   }
 
   void popUpMenuFunction(String value, int index) async {
-
     switch (value) {
       case 'share':
         await Share.shareFiles([history.files[index].file]);
         break;
     }
   }
-
 }

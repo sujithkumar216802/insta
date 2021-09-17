@@ -43,7 +43,8 @@ class Downloader {
         accountPhoto.bodyBytes,
         values['links'],
         values['description'],
-        values['account_tag']));
+        values['account_tag'],
+        values['ratio']));
   }
 
   static updateHistory(List<FileInfo> list) async {
