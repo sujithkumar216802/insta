@@ -49,7 +49,7 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
             Row(
               children: [
                 Flexible(
-                    flex: 3,
+                    flex: 6,
                     fit: FlexFit.tight,
                     child: Image.memory(
                       history.thumbnail,
@@ -57,48 +57,56 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                       height: MediaQuery.of(context).size.width / 5,
                     )),
                 Flexible(
-                    flex: 11,
+                    flex: 21,
                     fit: FlexFit.tight,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 18,
-                                height: 18,
-                                decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: DecorationImage(
-                                        fit: BoxFit.fill,
-                                        image:
-                                            MemoryImage(history.accountPhoto))),
-                              ),
-                              Text(' ' + history.tag,
-                                  overflow: TextOverflow.ellipsis)
-                            ],
-                          ),
-                          padding: EdgeInsets.fromLTRB(
-                              MediaQuery.of(context).size.width / 50,
-                              MediaQuery.of(context).size.width / 50,
-                              0,
-                              MediaQuery.of(context).size.width / 50),
-                        ),
-                        Container(
-                          child: Text(history.description,
-                              overflow: TextOverflow.ellipsis, softWrap: false),
-                          padding: EdgeInsets.fromLTRB(
-                              MediaQuery.of(context).size.width / 50,
-                              MediaQuery.of(context).size.width / 50,
-                              0,
-                              MediaQuery.of(context).size.width / 50),
-                        )
-                      ],
+                    child: Container(
+                      height: MediaQuery.of(context).size.width / 5,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Flexible(
+                              flex: 2,
+                              child: Container(
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 18,
+                                      height: 18,
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          image: DecorationImage(
+                                              fit: BoxFit.fill,
+                                              image: MemoryImage(
+                                                  history.accountPhoto))),
+                                    ),
+                                    Text(' ' + history.tag,
+                                        overflow: TextOverflow.ellipsis)
+                                  ],
+                                ),
+                                padding: EdgeInsets.fromLTRB(
+                                    MediaQuery.of(context).size.width / 50,
+                                    MediaQuery.of(context).size.width / 50,
+                                    0,
+                                    0),
+                              )),
+                          Flexible(
+                              flex: 4,
+                              child: Container(
+                                child: Text(history.description,
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: false),
+                                padding: EdgeInsets.fromLTRB(
+                                    MediaQuery.of(context).size.width / 100,
+                                    MediaQuery.of(context).size.width / 100,
+                                    0,
+                                    MediaQuery.of(context).size.width / 100),
+                              ))
+                        ],
+                      ),
                     )),
                 Flexible(
-                  flex: 1,
+                  flex: 3,
                   fit: FlexFit.tight,
                   child: TripleDot(
                     function: function,
@@ -120,11 +128,11 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                   (showFiles)
                       ? Icon(
                           Icons.arrow_drop_up_outlined,
-                          size: 32,
+                          size: 24,
                         )
                       : Icon(
                           Icons.arrow_drop_down_outlined,
-                          size: 32,
+                          size: 24,
                         ),
                   Text("Show Posts")
                 ],
