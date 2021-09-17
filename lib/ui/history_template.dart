@@ -6,8 +6,10 @@ import 'package:flutter/painting.dart';
 import 'package:insta_downloader/ui/pop_up_menu.dart';
 import 'package:insta_downloader/ui/video_player.dart';
 import 'package:insta_downloader/utils/file_checker.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../models/history_model.dart';
+import 'imageWidget.dart';
 
 class HistoryTemplate extends StatefulWidget {
   const HistoryTemplate(
@@ -152,8 +154,18 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
     File file = new File(history.files[index].file);
 
     if (history.files[index].type == 2)
-      return VideoPlayerWidget(video: file);
+      return VideoPlayerWidget(video: file, function : popUpMenuFunction, index: index);
     else
-      return Image.file(file);
+      return ImageWidget(file: file, function: popUpMenuFunction, index: index);
   }
+
+  void popUpMenuFunction(String value, int index) async {
+
+    switch (value) {
+      case 'share':
+        await Share.shareFiles([history.files[index].file]);
+        break;
+    }
+  }
+
 }

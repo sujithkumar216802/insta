@@ -6,11 +6,18 @@ class TripleDot extends StatelessWidget {
       {Key key,
       @required this.function,
       @required this.index,
-      @required this.type})
+      @required this.type,
+      this.single = false})
       : super(key: key);
   final function;
   final int index;
   final int type;
+  final bool single;
+
+  static const single_post = {
+    'name': ['Share'],
+    'value': ['share']
+  };
 
   static const values = [
     {
@@ -38,12 +45,21 @@ class TripleDot extends StatelessWidget {
     return PopupMenuButton(
       icon: Icon(Icons.more_vert),
       itemBuilder: (context) {
-        return List.generate(
-            values[type]['name'].length,
-            (index) => PopupMenuItem(
-                  child: Text(values[type]['name'][index]),
-                  value: values[type]['value'][index],
-                ));
+        if (single) {
+          return List.generate(
+              single_post['name'].length,
+              (index) => PopupMenuItem(
+                    child: Text(single_post['name'][index]),
+                    value: single_post['value'][index],
+                  ));
+        } else {
+          return List.generate(
+              values[type]['name'].length,
+              (index) => PopupMenuItem(
+                    child: Text(values[type]['name'][index]),
+                    value: values[type]['value'][index],
+                  ));
+        }
       },
       onSelected: (String value) {
         function(value, index);

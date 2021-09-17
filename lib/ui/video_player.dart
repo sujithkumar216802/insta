@@ -2,24 +2,29 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_downloader/ui/pop_up_menu.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
-  const VideoPlayerWidget({Key key, @required this.video}) : super(key: key);
+  const VideoPlayerWidget({Key key, @required this.video, @required this.function, @required this.index}) : super(key: key);
 
   final File video;
+  final function;
+  final int index;
 
   @override
-  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState(video);
+  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState(video, function, index);
 }
 
 class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
-  File video;
+  final File video;
+  final function;
+  final int index;
+
+
   VideoPlayerController _controller;
 
-  _VideoPlayerWidgetState(File video) {
-    this.video = video;
-  }
+  _VideoPlayerWidgetState(this.video, this.function, this.index);
 
   @override
   void initState() {
@@ -36,12 +41,14 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     return Stack(
       alignment: Alignment.center,
       children: [
-        (_controller != null && _controller.value.isInitialized)
-            ? AspectRatio(
-                aspectRatio: _controller.value.aspectRatio,
-                child: VideoPlayer(_controller),
-              )
-            : Container(),
+        Container(
+          child: (_controller != null && _controller.value.isInitialized)
+              ? AspectRatio(
+            aspectRatio: _controller.value.aspectRatio,
+            child: VideoPlayer(_controller),
+          )
+              : Container(),
+        ),
         GestureDetector(
             onTap: () {
               if (_controller != null) {
@@ -58,7 +65,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                   : Icons.play_arrow,
               size: 60,
               color: Colors.white,
-            ))
+            )),
+        Container(
+          alignment: Alignment.topRight,
+          child: TripleDot(function: function, index: index, type: 0, single: true),
+        )
       ],
     );
   }
