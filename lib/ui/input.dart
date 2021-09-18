@@ -81,7 +81,7 @@ class Input extends StatelessWidget {
         //getting the history
         History history = await DatabaseHelper.instance.getHistory(x);
 
-        Map temp = FileChecker.checkAllFiles(history);
+        Map temp = checkAllFiles(history);
         int type = temp['type'];
         List<int> indexes = temp['available_indexes'];
         List<FileInfo> notAvailable = temp['not_available'];
@@ -110,7 +110,7 @@ class Input extends StatelessWidget {
                     alignment: Alignment.center,
                     heightFactor: 1,
                   )));
-          await Downloader.updateHistory(notAvailable);
+          await updateHistory(notAvailable);
           Navigator.pop(context);
           return;
         }
@@ -130,7 +130,7 @@ class Input extends StatelessWidget {
               alignment: Alignment.center,
               heightFactor: 1,
             )));
-    await Downloader.getDetails(url);
+    await getDetails(url);
     Navigator.pop(context);
   }
 

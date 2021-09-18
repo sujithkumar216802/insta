@@ -9,67 +9,65 @@ import 'package:uuid/uuid.dart';
 
 import '../models/history_model.dart';
 
-class Downloader {
-  static const uuid = Uuid();
+const uuid = Uuid();
 
-  static downloadFile(var values, String postUrl) async {
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String dir = appDocDir.path;
+downloadFile(var values, String postUrl) async {
+  Directory appDocDir = await getApplicationDocumentsDirectory();
+  String dir = appDocDir.path;
 
-    File file;
+  File file;
 
-    //post download
-    var urls = values["links"];
-    for (FileInfo url in urls) {
-      var response = await http.get(Uri.parse(url.url));
-      if (url.type == 2)
-        file = new File('$dir/' + uuid.v1() + '.mp4');
-      else
-        file = new File('$dir/' + uuid.v1() + '.jpg');
-      await file.writeAsBytes(response.bodyBytes);
-      url.file = file.path;
-    }
-
-    //thumbnail
-    var thumbnail = await http.get(Uri.parse(values["thumbnail_url"]));
-
-    //account photo
-    var accountPhoto = await http.get(Uri.parse(values["account_pic_url"]));
-
-    //insert into db
-    await DatabaseHelper.instance.insert(History(
-        postUrl,
-        thumbnail.bodyBytes,
-        accountPhoto.bodyBytes,
-        values['links'],
-        values['description'],
-        values['account_tag'],
-        values['ratio']));
+  //post download
+  var urls = values["links"];
+  for (FileInfo url in urls) {
+    var response = await http.get(Uri.parse(url.url));
+    if (url.type == 2)
+      file = new File('$dir/' + uuid.v1() + '.mp4');
+    else
+      file = new File('$dir/' + uuid.v1() + '.jpg');
+    await file.writeAsBytes(response.bodyBytes);
+    url.file = file.path;
   }
 
-  static updateHistory(List<FileInfo> list) async {
-    File file;
+  //thumbnail
+  var thumbnail = await http.get(Uri.parse(values["thumbnail_url"]));
 
-    //post download
-    for (FileInfo url in list) {
-      var response = await http.get(Uri.parse(url.url));
-      file = new File(url.file);
-      await file.writeAsBytes(response.bodyBytes);
-    }
+  //account photo
+  var accountPhoto = await http.get(Uri.parse(values["account_pic_url"]));
+
+  //insert into db
+  await DatabaseHelper.instance.insert(History(
+      postUrl,
+      thumbnail.bodyBytes,
+      accountPhoto.bodyBytes,
+      values['links'],
+      values['description'],
+      values['account_tag'],
+      values['ratio']));
+}
+
+updateHistory(List<FileInfo> list) async {
+  File file;
+
+  //post download
+  for (FileInfo url in list) {
+    var response = await http.get(Uri.parse(url.url));
+    file = new File(url.file);
+    await file.writeAsBytes(response.bodyBytes);
   }
+}
 
-  static getDetails(String url) async {
-    try {
-      var response = await http.get(Uri.parse(url));
+getDetails(String url) async {
+  try {
+    var response = await http.get(Uri.parse(url));
 
-      if (response.statusCode == 200) {
-        await downloadFile(Extractor.extract(response.body), url);
-        return;
-      } else {
-        return null;
-      }
-    } catch (ex) {
+    if (response.statusCode == 200) {
+      await downloadFile(extract(response.body), url);
+      return;
+    } else {
       return null;
     }
+  } catch (ex) {
+    return null;
   }
 }

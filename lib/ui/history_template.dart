@@ -39,7 +39,7 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
 
   @override
   Widget build(BuildContext context) {
-    Map temp = FileChecker.checkAllFiles(history);
+    Map temp = checkAllFiles(history);
     int type = temp['type'];
     List<int> indexes = temp['available_indexes'];
 

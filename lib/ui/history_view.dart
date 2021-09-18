@@ -33,7 +33,7 @@ class _HistoryViewState extends State<HistoryView> {
   @override
   Widget build(BuildContext context) {
 
-    for (History x in list) FileChecker.checkAllFiles(x);
+    for (History x in list) checkAllFiles(x);
 
     return Container(
       width: MediaQuery.of(context).size.width,
@@ -51,7 +51,7 @@ class _HistoryViewState extends State<HistoryView> {
 
   //TODO CHANGE EVERYTHING TO FIT THE PREVIEW
   void popUpMenuFunction(String value, int index) async {
-    Map temp = FileChecker.checkAllFiles(list[index]);
+    Map temp = checkAllFiles(list[index]);
     int type = temp['type'];
     List<int> indexes = temp['available_indexes'];
     List<String> files = temp['files'];
@@ -95,7 +95,7 @@ class _HistoryViewState extends State<HistoryView> {
                   alignment: Alignment.center,
                   heightFactor: 1,
                 )));
-        await Downloader.updateHistory(notAvailable);
+        await updateHistory(notAvailable);
         Navigator.pop(context);
         setState(() {});
         break;
