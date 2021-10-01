@@ -1,6 +1,7 @@
 package com.example.insta_downloader
 
 import android.content.ContentValues
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -19,6 +20,7 @@ class MainActivity : FlutterActivity() {
         private const val SAVE = "save"
         private const val GET = "get"
         private const val CHECK = "check"
+        private const val SHARE = "share"
         private const val FOLDER_NAME = "Insta Downloader"
     }
 
@@ -38,6 +40,7 @@ class MainActivity : FlutterActivity() {
                 )
                 GET -> result.success(get(call.argument<String>("path")!!))
                 CHECK -> result.success(check(call.argument<String>("path")!!))
+                SHARE-> share(call.argument<List<String>>("paths")!!)
                 else -> result.notImplemented()
             }
         }
@@ -120,4 +123,18 @@ class MainActivity : FlutterActivity() {
 
     }
 
+    private fun share(paths: List<String>) {
+        val pathsOutStream : ArrayList<Uri> = arrayListOf()
+        for (i in paths) {
+            pathsOutStream.add(Uri.parse(i))
+        }
+
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND_MULTIPLE
+            putParcelableArrayListExtra(Intent.EXTRA_STREAM, pathsOutStream)
+            type = "*/*"
+        }
+        startActivity(Intent.createChooser(shareIntent, "Share files to.."))
+
+    }
 }

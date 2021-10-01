@@ -7,7 +7,7 @@ import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/ui/history_template.dart';
 import 'package:insta_downloader/utils/downloader.dart';
 import 'package:insta_downloader/utils/file_checker.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:insta_downloader/utils/method_channel.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/history_model.dart';
@@ -62,7 +62,7 @@ class _HistoryViewState extends State<HistoryView> {
         break;
       case 'share':
         //TODO just download the files that are not available ig
-        if (type != 2) await Share.shareFiles(files);
+        if (type != 2) shareFiles(files);
         setState(() {});
         break;
       case 'caption':

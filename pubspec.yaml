@@ -29,7 +29,7 @@ dependencies:
   sqflite: ^2.0.0+3
   permission_handler: ^8.1.1
   url_launcher: ^6.0.6
-  share_plus: ^2.1.2
+#  share_plus: ^2.1.2
   video_player: ^2.1.12
   #  shared_preferences: ^2.0.6
 

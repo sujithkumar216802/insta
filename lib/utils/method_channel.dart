@@ -15,3 +15,7 @@ getFile(String path) async {
 Future<bool> checkIfFileExists(String path) async {
   return await _channel.invokeMethod<bool>('check', {'path': path});
 }
+
+shareFiles(List<String> paths) {
+  _channel.invokeMethod<bool>('share', {'paths': paths});
+}

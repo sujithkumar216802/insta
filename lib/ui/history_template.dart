@@ -9,7 +9,6 @@ import 'package:insta_downloader/ui/video_player.dart';
 import 'package:insta_downloader/utils/file_checker.dart';
 import 'package:insta_downloader/utils/method_channel.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../models/history_model.dart';
 import 'imageWidget.dart';
@@ -195,7 +194,7 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
   void popUpMenuFunction(String value, int index) async {
     switch (value) {
       case 'share':
-        await Share.shareFiles([history.files[index].file]);
+        shareFiles([history.files[index].file]);
         break;
     }
   }
