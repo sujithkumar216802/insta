@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,8 @@ import 'package:flutter/painting.dart';
 import 'package:insta_downloader/ui/pop_up_menu.dart';
 import 'package:insta_downloader/ui/video_player.dart';
 import 'package:insta_downloader/utils/file_checker.dart';
+import 'package:insta_downloader/utils/method_channel.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../models/history_model.dart';
@@ -29,21 +32,29 @@ class HistoryTemplate extends StatefulWidget {
 }
 
 class _HistoryTemplateState extends State<HistoryTemplate> {
-  _HistoryTemplateState(this.history, this.index, this.function);
+  _HistoryTemplateState(this.history, this.index, this.function) {
+    checkAllFiles(history).then((value) {
+      type = value['type'];
+      indexes = value['available_indexes'];
+      show();
+      setState(() {});
+    });
+  }
 
   final History history;
   final int index;
   final function;
+  int type;
+  List<int> indexes;
+  List<Widget> showWidgets = [];
+  List<String> cache = [];
 
   bool showFiles = false;
 
   @override
   Widget build(BuildContext context) {
-    Map temp = checkAllFiles(history);
-    int type = temp['type'];
-    List<int> indexes = temp['available_indexes'];
-
-    return ListTile(
+    if(type!=null && indexes!=null)
+      return ListTile(
       title: Container(
         margin: EdgeInsets.fromLTRB(
             0, 0, 0, MediaQuery.of(context).size.width / 25),
@@ -147,7 +158,7 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                     aspectRatio: history.ratio,
                     child: PageView(
                       pageSnapping: true,
-                      children: indexes.map((e) => show(e)).toList(),
+                      children: showWidgets,
                     ),
                   )
                 : Container()
@@ -155,16 +166,30 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
         ),
       ),
     );
+    else
+      return Container();
   }
 
-  Widget show(int index) {
-    File file = new File(history.files[index].file);
+  show() async {
 
-    if (history.files[index].type == 2)
-      return VideoPlayerWidget(
-          video: file, function: popUpMenuFunction, index: index);
-    else
-      return ImageWidget(file: file, function: popUpMenuFunction, index: index);
+    for(int i in indexes) {
+      Uint8List list = await getFile(history.files[i].file);
+
+      // TODO if none show up
+      List<Directory> dirs = await getExternalCacheDirectories();
+      cache.add(dirs[0].path + history.files[i].name);
+      File file = File(dirs[0].path + history.files[i].name);
+      await file.writeAsBytes(list);
+
+
+      if (history.files[i].type == 2)
+        showWidgets.add(VideoPlayerWidget(
+            video: file, function: popUpMenuFunction, index: i));
+      else
+        showWidgets.add(ImageWidget(list: list, function: popUpMenuFunction, index: i));
+
+    }
+    setState(() {});
   }
 
   void popUpMenuFunction(String value, int index) async {
@@ -173,5 +198,17 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
         await Share.shareFiles([history.files[index].file]);
         break;
     }
+  }
+
+  @override
+  void dispose() {
+    for(String i in cache) {
+      File file = File(i);
+      if(file.existsSync()) {
+        //just starts deleting no need to be sync
+        file.delete();
+      }
+    }
+    super.dispose();
   }
 }

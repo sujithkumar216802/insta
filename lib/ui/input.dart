@@ -81,9 +81,8 @@ class Input extends StatelessWidget {
         //getting the history
         History history = await DatabaseHelper.instance.getHistory(x);
 
-        Map temp = checkAllFiles(history);
+        Map temp = await checkAllFiles(history);
         int type = temp['type'];
-        List<int> indexes = temp['available_indexes'];
         List<FileInfo> notAvailable = temp['not_available'];
 
         if (type == 0) {

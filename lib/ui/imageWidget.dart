@@ -1,13 +1,14 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_downloader/ui/pop_up_menu.dart';
 
 class ImageWidget extends StatelessWidget {
-  const ImageWidget({Key key, @required this.file, @required this.function, @required this.index}) : super(key: key);
+  const ImageWidget({Key key, @required this.list, @required this.function, @required this.index}) : super(key: key);
 
-  final File file;
+  final Uint8List list;
   final function;
   final int index;
 
@@ -16,7 +17,7 @@ class ImageWidget extends StatelessWidget {
     return Stack(
       alignment: Alignment.topRight,
       children: [
-        Image.file(file),
+        Image.memory(list),
         TripleDot(function: function, index: index, type: 0, single: true)
       ],
     );
