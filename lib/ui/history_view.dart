@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/ui/history_template.dart';
 import 'package:insta_downloader/utils/downloader.dart';
@@ -69,10 +70,7 @@ class _HistoryViewState extends State<HistoryView> {
         Clipboard.setData(ClipboardData(text: list[index].description));
         break;
       case 'delete':
-        for (String file in files) {
-          File f = File(file);
-          f.delete();
-        }
+        deleteFiles(files);
         await DatabaseHelper.instance.delete(list[index]);
         list.removeAt(index);
         setState(() {});

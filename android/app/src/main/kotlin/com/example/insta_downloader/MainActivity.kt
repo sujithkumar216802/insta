@@ -21,6 +21,7 @@ class MainActivity : FlutterActivity() {
         private const val GET = "get"
         private const val CHECK = "check"
         private const val SHARE = "share"
+        private const val DELETE = "delete"
         private const val FOLDER_NAME = "Insta Downloader"
     }
 
@@ -41,6 +42,7 @@ class MainActivity : FlutterActivity() {
                 GET -> result.success(get(call.argument<String>("path")!!))
                 CHECK -> result.success(check(call.argument<String>("path")!!))
                 SHARE-> share(call.argument<List<String>>("paths")!!)
+                DELETE -> delete(call.argument<List<String>>("paths")!!)
                 else -> result.notImplemented()
             }
         }
@@ -136,5 +138,13 @@ class MainActivity : FlutterActivity() {
         }
         startActivity(Intent.createChooser(shareIntent, "Share files to.."))
 
+    }
+
+    private fun delete(paths: List<String>) {
+        val resolver = context.contentResolver
+
+        for(i in paths) {
+            resolver.delete(Uri.parse(i), null, null)
+        }
     }
 }
