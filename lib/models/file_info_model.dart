@@ -1,19 +1,20 @@
+import 'package:insta_downloader/enums/file_type_enum.dart';
+
 class FileInfo {
-  int type;
+  FileType fileType;
   String url;
-  String file;
+  String uri;
   String name;
-  //bool isAvailable;
 
-  FileInfo(this.type, this.url);
+  FileInfo(this.fileType, this.url);
 
-  FileInfo.all(this.type, this.url, this.file, this.name);
+  FileInfo.all(this.fileType, this.url, this.uri, this.name);
 
   Map toJson() =>
-      {'type': type, 'url': url, 'file': file, 'name':name};
+      {'type': fileType.toInt(), 'url': url, 'uri': uri, 'name': name};
 
   factory FileInfo.fromJson(Map<String, dynamic> json) {
-    return FileInfo.all(json['type'] as int, json['url'] as String,
-        json['file'] as String, json['name'] as String);
+    return FileInfo.all(FileType.toFileType[json['type']],
+        json['url'] as String, json['uri'] as String, json['name'] as String);
   }
 }

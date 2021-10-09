@@ -1,19 +1,17 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart';
+import 'package:insta_downloader/enums/post_availability_enum.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
-import 'package:insta_downloader/ui/history_template.dart';
+import 'package:insta_downloader/ui/widget/history_template.dart';
 import 'package:insta_downloader/utils/downloader.dart';
 import 'package:insta_downloader/utils/file_checker.dart';
 import 'package:insta_downloader/utils/method_channel.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../models/history_model.dart';
-import '../utils/database_helper.dart';
-import '../utils/file_checker.dart';
+import '../../models/history_model.dart';
+import '../../utils/database_helper.dart';
+import '../../utils/file_checker.dart';
 
 class HistoryView extends StatefulWidget {
   const HistoryView({Key key}) : super(key: key);
@@ -33,7 +31,6 @@ class _HistoryViewState extends State<HistoryView> {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       width: MediaQuery.of(context).size.width,
       child: ListView.builder(
@@ -48,31 +45,31 @@ class _HistoryViewState extends State<HistoryView> {
     );
   }
 
-  //TODO CHANGE EVERYTHING TO FIT THE PREVIEW
   void popUpMenuFunction(String value, int index) async {
-    Map temp = await checkAllFiles(list[index]);
-    int type = temp['type'];
-    List<String> files = temp['files'];
-    List<FileInfo> notAvailable = temp['not_available'];
+    Map check = await checkAllFiles(list[index]);
+    PostAvailability postAvailability = check['post_availability'];
+    List<String> availableFiles = check['available_files_uri'];
+    List<FileInfo> notAvailableFilesInfo = check['not_available_files_info'];
 
     switch (value) {
       case 'url':
         await canLaunch(list[index].url)
-            ? await launch(list[index].url)
+            ? launch(list[index].url)
             : throw 'Could not launch ${list[index].url}';
         break;
       case 'share':
-        //TODO just download the files that are not available ig
-        if (type != 2) shareFiles(files);
-        setState(() {});
+        if (postAvailability != PostAvailability.NONE)
+          shareFiles(availableFiles);
         break;
       case 'caption':
         Clipboard.setData(ClipboardData(text: list[index].description));
         break;
       case 'delete':
-        deleteFiles(files);
-        await DatabaseHelper.instance.delete(list[index]);
+        deleteFiles(availableFiles);
+        //fire and forget
+        DatabaseHelper.instance.delete(list[index]);
         list.removeAt(index);
+        // update history
         setState(() {});
         break;
       case 'download':
@@ -90,8 +87,13 @@ class _HistoryViewState extends State<HistoryView> {
                   alignment: Alignment.center,
                   heightFactor: 1,
                 )));
-        await updateHistory(notAvailable);
+        await updateHistory(notAvailableFilesInfo);
         Navigator.pop(context);
+
+        //update history in db
+        //fire and forget
+        DatabaseHelper.instance.update(list[index]);
+        // update history
         setState(() {});
         break;
     }

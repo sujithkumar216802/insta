@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:insta_downloader/ui/history_view.dart';
-import 'package:insta_downloader/ui/input.dart';
-import 'package:insta_downloader/ui/settings.dart';
+import 'package:insta_downloader/ui/screen/history_view.dart';
+import 'package:insta_downloader/ui/screen/input.dart';
 
-import 'drawer.dart';
+import 'widget/drawer.dart';
 
 class CurrentPage extends StatefulWidget {
   const CurrentPage({Key key}) : super(key: key);

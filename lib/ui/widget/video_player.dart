@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:insta_downloader/ui/pop_up_menu.dart';
+import 'package:insta_downloader/ui/widget/pop_up_menu.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
@@ -72,7 +72,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         Container(
           alignment: Alignment.topRight,
           child: TripleDot(
-              function: function, index: index, type: 0, single: true),
+              callbackFunction: function, index: index, isSingleFile: true),
         )
       ],
     );

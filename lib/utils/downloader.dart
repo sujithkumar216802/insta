@@ -1,11 +1,9 @@
-import 'dart:io';
-
 import 'package:http/http.dart' as http;
+import 'package:insta_downloader/enums/file_type_enum.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/utils/database_helper.dart';
 import 'package:insta_downloader/utils/extractor.dart';
 import 'package:insta_downloader/utils/method_channel.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/history_model.dart';
@@ -13,16 +11,15 @@ import '../models/history_model.dart';
 const uuid = Uuid();
 
 downloadFile(var values, String postUrl) async {
-
   //post download
   var urls = values["links"];
   for (FileInfo url in urls) {
     var response = await http.get(Uri.parse(url.url));
     var name = uuid.v1();
-    if (url.type == 2)
-      url.file = await saveFile(response.bodyBytes, name, 2);
+    if (url.fileType == FileType.VIDEO)
+      url.uri = await saveFile(response.bodyBytes, name, FileType.VIDEO.toInt());
     else
-      url.file = await saveFile(response.bodyBytes, name, 1);
+      url.uri = await saveFile(response.bodyBytes, name, FileType.IMAGE.toInt());
     url.name = name;
   }
 
@@ -44,13 +41,13 @@ downloadFile(var values, String postUrl) async {
 }
 
 updateHistory(List<FileInfo> list) async {
-  File file;
-
   //post download
   for (FileInfo url in list) {
     var response = await http.get(Uri.parse(url.url));
-    file = new File(url.file);
-    await file.writeAsBytes(response.bodyBytes);
+    if (url.fileType == FileType.VIDEO)
+      url.uri = await saveFile(response.bodyBytes, url.name, FileType.VIDEO.toInt());
+    else
+      url.uri = await saveFile(response.bodyBytes, url.name, FileType.IMAGE.toInt());
   }
 }
 

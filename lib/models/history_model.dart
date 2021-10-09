@@ -5,8 +5,11 @@ import 'package:insta_downloader/models/file_info_model.dart';
 
 class History {
   final String url;
+
+  // The listing will always have thumbnail and account photo
   final Uint8List thumbnail;
   final Uint8List accountPhoto;
+
   final List<FileInfo> files;
   final String description;
   final String tag;

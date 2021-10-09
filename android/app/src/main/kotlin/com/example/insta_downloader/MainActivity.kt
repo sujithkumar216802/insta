@@ -34,34 +34,34 @@ class MainActivity : FlutterActivity() {
             when (call.method) {
                 SAVE -> result.success(
                     save(
-                        call.argument<ByteArray>("file")!!,
+                        call.argument<ByteArray>("byte_array")!!,
                         call.argument<String>("name")!!,
-                        call.argument<Int>("type")!!
+                        call.argument<Int>("file_type")!!
                     )
                 )
-                GET -> result.success(get(call.argument<String>("path")!!))
-                CHECK -> result.success(check(call.argument<String>("path")!!))
-                SHARE-> share(call.argument<List<String>>("paths")!!)
-                DELETE -> delete(call.argument<List<String>>("paths")!!)
+                GET -> result.success(get(call.argument<String>("uri")!!))
+                CHECK -> result.success(check(call.argument<String>("uri")!!))
+                SHARE -> share(call.argument<List<String>>("uris")!!)
+                DELETE -> delete(call.argument<List<String>>("uris")!!)
                 else -> result.notImplemented()
             }
         }
     }
 
-    private fun check(path: String): Boolean {
+    private fun check(uri: String): Boolean {
         val resolver = context.contentResolver
         try {
-            resolver.openInputStream(Uri.parse(path))
+            resolver.openInputStream(Uri.parse(uri))
         } catch (e: FileNotFoundException) {
             return false
         }
         return true
     }
 
-    private fun get(path: String): ByteArray? {
+    private fun get(uri: String): ByteArray? {
         val resolver = context.contentResolver
         try {
-            resolver.openInputStream(Uri.parse(path)).use {
+            resolver.openInputStream(Uri.parse(uri)).use {
                 return it!!.readBytes()
             }
         } catch (e: FileNotFoundException) {
@@ -69,7 +69,7 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    private fun save(file: ByteArray, name: String, type: Int): String? {
+    private fun save(byteArray: ByteArray, name: String, type: Int): String? {
 
         val resolver = context.contentResolver
 
@@ -90,7 +90,6 @@ class MainActivity : FlutterActivity() {
                         Environment.DIRECTORY_PICTURES + File.separator + FOLDER_NAME
                     )
                 }
-
                 put(MediaStore.MediaColumns.IS_PENDING, true)
             }
 
@@ -102,7 +101,7 @@ class MainActivity : FlutterActivity() {
             try {
                 val fos = resolver.openOutputStream(uri!!)
 
-                fos!!.write(file)
+                fos!!.write(byteArray)
                 fos.close()
 
                 values.put(MediaStore.MediaColumns.IS_PENDING, false)
@@ -125,25 +124,24 @@ class MainActivity : FlutterActivity() {
 
     }
 
-    private fun share(paths: List<String>) {
-        val pathsOutStream : ArrayList<Uri> = arrayListOf()
-        for (i in paths) {
-            pathsOutStream.add(Uri.parse(i))
+    private fun share(uris: List<String>) {
+        val urisOutStream: ArrayList<Uri> = arrayListOf()
+        for (i in uris) {
+            urisOutStream.add(Uri.parse(i))
         }
 
         val shareIntent = Intent().apply {
             action = Intent.ACTION_SEND_MULTIPLE
-            putParcelableArrayListExtra(Intent.EXTRA_STREAM, pathsOutStream)
+            putParcelableArrayListExtra(Intent.EXTRA_STREAM, urisOutStream)
             type = "*/*"
         }
         startActivity(Intent.createChooser(shareIntent, "Share files to.."))
 
     }
 
-    private fun delete(paths: List<String>) {
+    private fun delete(uris: List<String>) {
         val resolver = context.contentResolver
-
-        for(i in paths) {
+        for (i in uris) {
             resolver.delete(Uri.parse(i), null, null)
         }
     }

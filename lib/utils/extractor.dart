@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:insta_downloader/enums/file_type_enum.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
 
 const jsonHeader = 'window._sharedData = ';
@@ -64,16 +65,16 @@ extract(String html) {
         valuesJsonDict['edge_media_to_caption']['edges'][0]['node']['text'];
 
   if (valuesJsonDict['is_video'])
-    links.add(FileInfo(2, valuesJsonDict['video_url']));
+    links.add(FileInfo(FileType.toFileType[2], valuesJsonDict['video_url']));
   else if (valuesJsonDict['edge_sidecar_to_children'] == null)
-    links.add(FileInfo(1, valuesJsonDict['display_url']));
+    links.add(FileInfo(FileType.toFileType[1], valuesJsonDict['display_url']));
   else {
     var valuesArray = valuesJsonDict['edge_sidecar_to_children']['edges'];
     for (int i = 0; i < valuesArray.length; i++) {
       if (valuesArray[i]['node']['is_video'])
-        links.add(FileInfo(2, valuesArray[i]['node']['video_url']));
+        links.add(FileInfo(FileType.toFileType[2], valuesArray[i]['node']['video_url']));
       else
-        links.add(FileInfo(1, valuesArray[i]['node']['display_url']));
+        links.add(FileInfo(FileType.toFileType[1], valuesArray[i]['node']['display_url']));
     }
   }
 

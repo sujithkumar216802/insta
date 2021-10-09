@@ -1,25 +1,27 @@
 import 'dart:typed_data';
+
 import 'package:flutter/services.dart';
 
-const MethodChannel _channel = MethodChannel(
-    'com.example.insta_downloader/folder');
+const MethodChannel _channel =
+    MethodChannel('com.example.insta_downloader/folder');
 
-saveFile(Uint8List file, String name, int type) async {
-  return await _channel.invokeMethod('save', {'file': file, 'name': name, 'type': type});
+saveFile(Uint8List byteArray, String name, int fileType) async {
+  return await _channel
+      .invokeMethod('save', {'byte_array': byteArray, 'name': name, 'file_type': fileType});
 }
 
-getFile(String path) async {
-  return await _channel.invokeMethod<Uint8List>('get', {'path': path});
+getFile(String uri) async {
+  return await _channel.invokeMethod<Uint8List>('get', {'uri': uri});
 }
 
-Future<bool> checkIfFileExists(String path) async {
-  return await _channel.invokeMethod<bool>('check', {'path': path});
+Future<bool> checkIfFileExists(String uri) async {
+  return await _channel.invokeMethod<bool>('check', {'uri': uri});
 }
 
-shareFiles(List<String> paths) {
-  _channel.invokeMethod<bool>('share', {'paths': paths});
+shareFiles(List<String> uris) {
+  _channel.invokeMethod<bool>('share', {'uris': uris});
 }
 
-deleteFiles(List<String> paths) {
-  _channel.invokeMethod<bool>('delete', {'paths': paths});
+deleteFiles(List<String> uris) {
+  _channel.invokeMethod<bool>('delete', {'uris': uris});
 }
