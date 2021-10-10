@@ -22,6 +22,7 @@ class MainActivity : FlutterActivity() {
         private const val CHECK = "check"
         private const val SHARE = "share"
         private const val DELETE = "delete"
+        private const val DELETE_SINGLE = "delete_single"
         private const val FOLDER_NAME = "Insta Downloader"
     }
 
@@ -43,6 +44,7 @@ class MainActivity : FlutterActivity() {
                 CHECK -> result.success(check(call.argument<String>("uri")!!))
                 SHARE -> share(call.argument<List<String>>("uris")!!)
                 DELETE -> delete(call.argument<List<String>>("uris")!!)
+                DELETE_SINGLE -> deleteSingle(call.argument<String>("uri")!!, result)
                 else -> result.notImplemented()
             }
         }
@@ -144,5 +146,11 @@ class MainActivity : FlutterActivity() {
         for (i in uris) {
             resolver.delete(Uri.parse(i), null, null)
         }
+    }
+
+    private fun deleteSingle(uri: String, result: MethodChannel.Result) {
+        val resolver = context.contentResolver
+        resolver.delete(Uri.parse(uri), null, null)
+        result.success("")
     }
 }

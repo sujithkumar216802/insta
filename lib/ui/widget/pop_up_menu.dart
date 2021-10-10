@@ -16,8 +16,8 @@ class TripleDot extends StatelessWidget {
   final bool isSingleFile;
 
   static const single_post = {
-    'name': ['Share'],
-    'value': ['share']
+    'name': ['Share', 'Delete'],
+    'value': ['share', 'delete']
   };
 
   static const values = {

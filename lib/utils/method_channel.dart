@@ -19,9 +19,13 @@ Future<bool> checkIfFileExists(String uri) async {
 }
 
 shareFiles(List<String> uris) {
-  _channel.invokeMethod<bool>('share', {'uris': uris});
+  _channel.invokeMethod('share', {'uris': uris});
 }
 
 deleteFiles(List<String> uris) {
-  _channel.invokeMethod<bool>('delete', {'uris': uris});
+  _channel.invokeMethod('delete', {'uris': uris});
+}
+
+deleteFile(String uri) async {
+  await _channel.invokeMethod('delete_single', {'uri': uri});
 }

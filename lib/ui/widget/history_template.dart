@@ -34,19 +34,7 @@ class HistoryTemplate extends StatefulWidget {
 
 class _HistoryTemplateState extends State<HistoryTemplate> {
   _HistoryTemplateState(this.history, this.index, this.function) {
-    checkAllFiles(history).then((value) => initialise(value));
-  }
-
-  @override
-  void didUpdateWidget(HistoryTemplate oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    checkAllFiles(history).then((value) => initialise(value));
-  }
-
-  void initialise(value) {
-    postAvailability = value['post_availability'];
-    indexes = value['available_indexes'];
-    show();
+    init();
   }
 
   final History history;
@@ -58,6 +46,20 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
   List<String> cache = [];
 
   bool showFiles = false;
+
+  //for updating history by downloading missing files
+  @override
+  void didUpdateWidget(HistoryTemplate oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    init();
+  }
+
+  void init() async {
+    var value = await checkAllFiles(history);
+    postAvailability = value['post_availability'];
+    indexes = value['available_indexes'];
+    show();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -205,6 +207,10 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
     switch (value) {
       case 'share':
         shareFiles([history.files[index].uri]);
+        break;
+      case 'delete':
+        await deleteFile(history.files[index].uri);
+        init();
         break;
     }
   }
