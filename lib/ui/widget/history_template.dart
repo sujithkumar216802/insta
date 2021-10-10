@@ -218,6 +218,7 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
         cacheFile.delete();
       }
     }
+    cache = [];
     super.dispose();
   }
 }

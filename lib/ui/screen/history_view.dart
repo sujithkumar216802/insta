@@ -4,9 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:insta_downloader/enums/post_availability_enum.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/ui/widget/history_template.dart';
+import 'package:insta_downloader/utils/dialogue_helper.dart';
 import 'package:insta_downloader/utils/downloader.dart';
 import 'package:insta_downloader/utils/file_checker.dart';
 import 'package:insta_downloader/utils/method_channel.dart';
+import 'package:insta_downloader/utils/reponse_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/history_model.dart';
@@ -73,22 +75,10 @@ class _HistoryViewState extends State<HistoryView> {
         setState(() {});
         break;
       case 'download':
-        showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (_) => AlertDialog(
-                title: Text('Downloading'),
-                content: Align(
-                  child: Container(
-                      child: CircularProgressIndicator(),
-                      padding: EdgeInsets.all(10),
-                      width: MediaQuery.of(context).size.width / 5,
-                      height: MediaQuery.of(context).size.width / 5),
-                  alignment: Alignment.center,
-                  heightFactor: 1,
-                )));
-        await updateHistory(notAvailableFilesInfo);
+        showDialogueWithLoadingBar(context, 'Downloading');
+        var status = await updateHistory(notAvailableFilesInfo);
         Navigator.pop(context);
+        responseHelper(context, status);
 
         //update history in db
         //fire and forget

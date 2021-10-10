@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:insta_downloader/enums/file_type_enum.dart';
+import 'package:insta_downloader/enums/status_enum.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
 
 const jsonHeader = 'window._sharedData = ';
@@ -51,6 +52,9 @@ extract(String html) {
     }
   }
 
+  if(!valuesJsonDict['entry_data'].containsKey('PostPage')) {
+    return Status.PRIVATE;
+  }
   valuesJsonDict =
       valuesJsonDict['entry_data']['PostPage'][0]['graphql']['shortcode_media'];
   thumbnailUrl = valuesJsonDict['display_resources'][0]['src'];

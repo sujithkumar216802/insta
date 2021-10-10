@@ -5,8 +5,10 @@ import 'package:insta_downloader/enums/post_availability_enum.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/models/history_model.dart';
 import 'package:insta_downloader/utils/database_helper.dart';
+import 'package:insta_downloader/utils/dialogue_helper.dart';
 import 'package:insta_downloader/utils/downloader.dart';
 import 'package:insta_downloader/utils/file_checker.dart';
+import 'package:insta_downloader/utils/reponse_helper.dart';
 
 class Input extends StatelessWidget {
   final UrlController = TextEditingController();
@@ -65,12 +67,7 @@ class Input extends StatelessWidget {
             !url.startsWith("https://www.instagram.com/reel/")) ||
         url.startsWith("https://www.instagram.com/stories")) {
       //show dialog
-      showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-                title: Text('Invalid Link'),
-                content: Text('The link is fked up my dude'),
-              ));
+      showDialogueWithText(context, 'Invalid Link', 'The link is not valid');
       return;
     }
 
@@ -83,34 +80,18 @@ class Input extends StatelessWidget {
 
         Map check = await checkAllFiles(history);
         PostAvailability postAvailability = check['post_availability'];
-        List<FileInfo> notAvailableFilesInfo = check['not_available_files_info'];
+        List<FileInfo> notAvailableFilesInfo =
+            check['not_available_files_info'];
 
         if (postAvailability == PostAvailability.ALL) {
           //show dialog
-          showDialog(
-              context: context,
-              builder: (_) => AlertDialog(
-                    title: Text('Already Downloaded'),
-                    content: Text('Check History'),
-                  ));
+          showDialogueWithText(context, 'Already Downloaded', 'Check History');
           return;
         } else {
-          showDialog(
-              barrierDismissible: false,
-              context: context,
-              builder: (_) => AlertDialog(
-                  title: Text('Downloading'),
-                  content: Align(
-                    child: Container(
-                        child: CircularProgressIndicator(),
-                        padding: EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width / 5,
-                        height: MediaQuery.of(context).size.width / 5),
-                    alignment: Alignment.center,
-                    heightFactor: 1,
-                  )));
-          await updateHistory(notAvailableFilesInfo);
+          showDialogueWithLoadingBar(context, 'Downloading');
+          var status = await updateHistory(notAvailableFilesInfo);
           Navigator.pop(context);
+          responseHelper(context, status);
 
           //update history in db
           //fire and forget
@@ -119,22 +100,11 @@ class Input extends StatelessWidget {
         }
       }
     }
-    showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (_) => AlertDialog(
-            title: Text('Downloading'),
-            content: Align(
-              child: Container(
-                  child: CircularProgressIndicator(),
-                  padding: EdgeInsets.all(10),
-                  width: MediaQuery.of(context).size.width / 5,
-                  height: MediaQuery.of(context).size.width / 5),
-              alignment: Alignment.center,
-              heightFactor: 1,
-            )));
-    await getDetails(url);
+    showDialogueWithLoadingBar(context, 'Downloading');
+    var status = await getDetails(url);
     Navigator.pop(context);
+    responseHelper(context, status);
+
   }
 
   void paste() {

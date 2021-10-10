@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'package:insta_downloader/enums/file_type_enum.dart';
+import 'package:insta_downloader/enums/status_enum.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/utils/database_helper.dart';
 import 'package:insta_downloader/utils/extractor.dart';
@@ -17,9 +18,11 @@ downloadFile(var values, String postUrl) async {
     var response = await http.get(Uri.parse(url.url));
     var name = uuid.v1();
     if (url.fileType == FileType.VIDEO)
-      url.uri = await saveFile(response.bodyBytes, name, FileType.VIDEO.toInt());
+      url.uri =
+          await saveFile(response.bodyBytes, name, FileType.VIDEO.toInt());
     else
-      url.uri = await saveFile(response.bodyBytes, name, FileType.IMAGE.toInt());
+      url.uri =
+          await saveFile(response.bodyBytes, name, FileType.IMAGE.toInt());
     url.name = name;
   }
 
@@ -43,25 +46,48 @@ downloadFile(var values, String postUrl) async {
 updateHistory(List<FileInfo> list) async {
   //post download
   for (FileInfo url in list) {
-    var response = await http.get(Uri.parse(url.url));
-    if (url.fileType == FileType.VIDEO)
-      url.uri = await saveFile(response.bodyBytes, url.name, FileType.VIDEO.toInt());
-    else
-      url.uri = await saveFile(response.bodyBytes, url.name, FileType.IMAGE.toInt());
+    try {
+      var response = await http.get(Uri.parse(url.url));
+      if (url.fileType == FileType.VIDEO)
+        url.uri = await saveFile(
+            response.bodyBytes, url.name, FileType.VIDEO.toInt());
+      else
+        url.uri = await saveFile(
+            response.bodyBytes, url.name, FileType.IMAGE.toInt());
+    } catch (ex) {
+      // post deleted or the account went private
+      return Status.FAILURE;
+    }
   }
+
+  return Status.SUCCESS;
 }
 
 getDetails(String url) async {
   try {
     var response = await http.get(Uri.parse(url));
 
-    if (response.statusCode == 200) {
-      await downloadFile(extract(response.body), url);
-      return;
-    } else {
-      return null;
+    switch (response.statusCode) {
+      case 200:
+        var extractedInfo = extract(response.body);
+
+        if (extractedInfo != Status.PRIVATE) {
+          try {
+            await downloadFile(extractedInfo, url);
+          } catch (ex) {
+            return Status.FAILURE;
+          }
+        } else {
+          return extractedInfo;
+        }
+
+        return Status.SUCCESS;
+        break;
+      case 404:
+        return Status.NOT_FOUND;
+        break;
     }
   } catch (ex) {
-    return null;
+    return Status.NO_INTERNET;
   }
 }
