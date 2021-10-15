@@ -7,7 +7,7 @@ import 'package:insta_downloader/ui/widget/history_template.dart';
 import 'package:insta_downloader/utils/dialogue_helper.dart';
 import 'package:insta_downloader/utils/downloader.dart';
 import 'package:insta_downloader/utils/file_checker.dart';
-import 'package:insta_downloader/utils/method_channel.dart';
+import 'package:insta_downloader/utils/file_util.dart';
 import 'package:insta_downloader/utils/reponse_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 

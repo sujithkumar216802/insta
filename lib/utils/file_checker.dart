@@ -1,10 +1,9 @@
+import 'package:insta_downloader/enums/post_availability_enum.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/models/history_model.dart';
-import 'package:insta_downloader/enums/post_availability_enum.dart';
-import 'package:insta_downloader/utils/method_channel.dart';
+import 'package:insta_downloader/utils/file_util.dart';
 
 checkAllFiles(History history) async {
-
   PostAvailability postAvailability = PostAvailability.NONE;
   List<int> availableIndexes = [];
   List<String> uris = [];
@@ -20,7 +19,8 @@ checkAllFiles(History history) async {
 
   if (availableIndexes.length == history.files.length)
     postAvailability = PostAvailability.ALL;
-  else if (availableIndexes.length != 0) postAvailability = PostAvailability.NONE;
+  else if (availableIndexes.length != 0)
+    postAvailability = PostAvailability.PARTIAL;
   return {
     'post_availability': postAvailability,
     'available_indexes': availableIndexes,

@@ -24,6 +24,8 @@ class MainActivity : FlutterActivity() {
         private const val DELETE = "delete"
         private const val DELETE_SINGLE = "delete_single"
         private const val FOLDER_NAME = "Insta Downloader"
+        private const val SDK = "get_sdk"
+        private const val PATH = "path"
     }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
@@ -45,6 +47,8 @@ class MainActivity : FlutterActivity() {
                 SHARE -> share(call.argument<List<String>>("uris")!!)
                 DELETE -> delete(call.argument<List<String>>("uris")!!)
                 DELETE_SINGLE -> deleteSingle(call.argument<String>("uri")!!, result)
+                SDK -> result.success(getVersionSdk())
+                PATH -> result.success(getPath(call.argument<Int>("type")!!))
                 else -> result.notImplemented()
             }
         }
@@ -118,11 +122,9 @@ class MainActivity : FlutterActivity() {
 
             return uri.toString()
 
-        } else {
-            // TODO below ANDROID
-            //below A10
-            return null
         }
+
+        return "uri is null"
 
     }
 
@@ -152,5 +154,19 @@ class MainActivity : FlutterActivity() {
         val resolver = context.contentResolver
         resolver.delete(Uri.parse(uri), null, null)
         result.success("")
+    }
+
+    private fun getVersionSdk(): Int {
+        return Build.VERSION.SDK_INT
+    }
+
+    //1 and 2 are for API below 29 for above 29 mediastore will be used
+    private fun getPath(type: Int): String {
+        return when (type) {
+            1 -> Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).absolutePath
+            2 -> Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES).absolutePath
+            3 -> context.getExternalFilesDir(null)!!.absolutePath
+            else -> ""
+        }
     }
 }

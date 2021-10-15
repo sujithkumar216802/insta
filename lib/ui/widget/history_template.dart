@@ -5,12 +5,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:insta_downloader/enums/file_type_enum.dart';
+import 'package:insta_downloader/enums/path_enum.dart';
 import 'package:insta_downloader/enums/post_availability_enum.dart';
 import 'package:insta_downloader/ui/widget/pop_up_menu.dart';
 import 'package:insta_downloader/ui/widget/video_player.dart';
 import 'package:insta_downloader/utils/file_checker.dart';
-import 'package:insta_downloader/utils/method_channel.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:insta_downloader/utils/file_util.dart';
 
 import '../../models/history_model.dart';
 import 'imageWidget.dart';
@@ -46,6 +46,7 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
   List<String> cache = [];
 
   bool showFiles = false;
+  bool disposeBool = false;
 
   //for updating history by downloading missing files
   @override
@@ -183,24 +184,38 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
 
   show() async {
     showWidgets = [];
-    for (int i in indexes) {
-      Uint8List list = await getFile(history.files[i].uri);
+    if (await getSdk() < 29) {
+      for (int i in indexes) {
+        File file = await getFile(history.files[i].uri);
 
-      //caching video file
-      // TODO if none show up
-      List<Directory> dirs = await getExternalCacheDirectories();
-      cache.add(dirs[0].path + history.files[i].name);
-      File cacheFile = File(dirs[0].path + history.files[i].name);
-      await cacheFile.writeAsBytes(list);
+        if (history.files[i].fileType == FileType.VIDEO)
+          showWidgets.add(VideoPlayerWidget(
+              video: file, function: popUpMenuFunction, index: i));
+        else
+          showWidgets.add(
+              ImageWidget(file: file, function: popUpMenuFunction, index: i));
+      }
+    } else {
+      for (int i in indexes) {
+        Uint8List list = await getFile(history.files[i].uri);
 
-      if (history.files[i].fileType == FileType.VIDEO)
-        showWidgets.add(VideoPlayerWidget(
-            video: cacheFile, function: popUpMenuFunction, index: i));
-      else
-        showWidgets.add(
-            ImageWidget(list: list, function: popUpMenuFunction, index: i));
+        //caching video file
+        // TODO if none show up
+        String path = await getPath(PathType.APP);
+        cache.add(path + history.files[i].name);
+        File cacheFile = File(path + history.files[i].name);
+        await cacheFile.writeAsBytes(list);
+
+        if (history.files[i].fileType == FileType.VIDEO)
+          showWidgets.add(VideoPlayerWidget(
+              video: cacheFile, function: popUpMenuFunction, index: i));
+        else
+          showWidgets.add(
+              ImageWidget(list: list, function: popUpMenuFunction, index: i));
+      }
     }
-    setState(() {});
+
+    if (!disposeBool) setState(() {});
   }
 
   void popUpMenuFunction(String value, int index) async {
@@ -217,6 +232,7 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
 
   @override
   void dispose() {
+    disposeBool = true;
     for (String i in cache) {
       File cacheFile = File(i);
       if (cacheFile.existsSync()) {

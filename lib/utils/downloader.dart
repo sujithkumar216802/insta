@@ -4,7 +4,7 @@ import 'package:insta_downloader/enums/status_enum.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/utils/database_helper.dart';
 import 'package:insta_downloader/utils/extractor.dart';
-import 'package:insta_downloader/utils/method_channel.dart';
+import 'package:insta_downloader/utils/file_util.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/history_model.dart';
@@ -17,12 +17,13 @@ downloadFile(var values, String postUrl) async {
   for (FileInfo url in urls) {
     var response = await http.get(Uri.parse(url.url));
     var name = uuid.v1();
+
     if (url.fileType == FileType.VIDEO)
-      url.uri =
-          await saveFile(response.bodyBytes, name, FileType.VIDEO.toInt());
+      url.uri = await saveFile(response.bodyBytes, name, FileType.VIDEO);
     else
-      url.uri =
-          await saveFile(response.bodyBytes, name, FileType.IMAGE.toInt());
+      url.uri = await saveFile(response.bodyBytes, name, FileType.IMAGE);
+
+    if (url.uri == "uri is null") return Status.ERROR_WHILE_SAVING_FILE;
     url.name = name;
   }
 
@@ -48,12 +49,13 @@ updateHistory(List<FileInfo> list) async {
   for (FileInfo url in list) {
     try {
       var response = await http.get(Uri.parse(url.url));
+
       if (url.fileType == FileType.VIDEO)
-        url.uri = await saveFile(
-            response.bodyBytes, url.name, FileType.VIDEO.toInt());
+        url.uri = await saveFile(response.bodyBytes, url.name, FileType.VIDEO);
       else
-        url.uri = await saveFile(
-            response.bodyBytes, url.name, FileType.IMAGE.toInt());
+        url.uri = await saveFile(response.bodyBytes, url.name, FileType.IMAGE);
+
+      if (url.uri == "uri is null") return Status.ERROR_WHILE_SAVING_FILE;
     } catch (ex) {
       // post deleted or the account went private
       return Status.FAILURE;
@@ -73,7 +75,8 @@ getDetails(String url) async {
 
         if (extractedInfo != Status.PRIVATE) {
           try {
-            await downloadFile(extractedInfo, url);
+            var status = await downloadFile(extractedInfo, url);
+            if (status != null) return status;
           } catch (ex) {
             return Status.FAILURE;
           }

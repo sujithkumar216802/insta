@@ -2,12 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:insta_downloader/enums/post_availability_enum.dart';
+import 'package:insta_downloader/enums/status_enum.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/models/history_model.dart';
 import 'package:insta_downloader/utils/database_helper.dart';
 import 'package:insta_downloader/utils/dialogue_helper.dart';
 import 'package:insta_downloader/utils/downloader.dart';
 import 'package:insta_downloader/utils/file_checker.dart';
+import 'package:insta_downloader/utils/file_util.dart';
+import 'package:insta_downloader/utils/permission.dart';
 import 'package:insta_downloader/utils/reponse_helper.dart';
 
 class Input extends StatelessWidget {
@@ -71,6 +74,11 @@ class Input extends StatelessWidget {
       return;
     }
 
+    if (await getSdk() < 29 && !(await getDownloadPermission())) {
+      responseHelper(context, Status.PERMISSION_NOT_GRANTED);
+      return;
+    }
+
     //check duplicates
     List<String> urlList = await DatabaseHelper.instance.getUrls();
     for (String x in urlList) {
@@ -104,7 +112,6 @@ class Input extends StatelessWidget {
     var status = await getDetails(url);
     Navigator.pop(context);
     responseHelper(context, status);
-
   }
 
   void paste() {

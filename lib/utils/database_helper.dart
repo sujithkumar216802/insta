@@ -1,8 +1,9 @@
 import 'dart:io';
 
+import 'package:insta_downloader/enums/path_enum.dart';
 import 'package:insta_downloader/models/history_model.dart';
+import 'package:insta_downloader/utils/file_util.dart';
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
@@ -29,8 +30,8 @@ class DatabaseHelper {
   }
 
   Future<Database> _initiateDatabase() async {
-    Directory directory = await getApplicationDocumentsDirectory();
-    return await openDatabase(join(directory.path, _dbName),
+    String path = await getPath(PathType.APP);
+    return await openDatabase(join(path, _dbName),
         version: _dbVersion, onCreate: _onCreate);
   }
 
