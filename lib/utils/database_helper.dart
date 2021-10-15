@@ -1,9 +1,8 @@
-import 'dart:io';
-
 import 'package:insta_downloader/models/history_model.dart';
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+
+import 'method_channel.dart';
 
 class DatabaseHelper {
   static const _dbName = 'historyDB';
@@ -29,8 +28,8 @@ class DatabaseHelper {
   }
 
   Future<Database> _initiateDatabase() async {
-    Directory directory = await getApplicationDocumentsDirectory();
-    return await openDatabase(join(directory.path, _dbName),
+    String path = await getPath();
+    return await openDatabase(join(path, _dbName),
         version: _dbVersion, onCreate: _onCreate);
   }
 

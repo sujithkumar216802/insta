@@ -23,6 +23,8 @@ downloadFile(var values, String postUrl) async {
     else
       url.uri =
           await saveFile(response.bodyBytes, name, FileType.IMAGE.toInt());
+
+    if (url.uri == "uri is null") return Status.ERROR_WHILE_SAVING_FILE;
     url.name = name;
   }
 
@@ -54,6 +56,8 @@ updateHistory(List<FileInfo> list) async {
       else
         url.uri = await saveFile(
             response.bodyBytes, url.name, FileType.IMAGE.toInt());
+
+      if (url.uri == "uri is null") return Status.ERROR_WHILE_SAVING_FILE;
     } catch (ex) {
       // post deleted or the account went private
       return Status.FAILURE;
@@ -73,7 +77,8 @@ getDetails(String url) async {
 
         if (extractedInfo != Status.PRIVATE) {
           try {
-            await downloadFile(extractedInfo, url);
+            var status = await downloadFile(extractedInfo, url);
+            if (status != null) return status;
           } catch (ex) {
             return Status.FAILURE;
           }

@@ -24,6 +24,8 @@ class MainActivity : FlutterActivity() {
         private const val DELETE = "delete"
         private const val DELETE_SINGLE = "delete_single"
         private const val FOLDER_NAME = "Insta Downloader"
+        private const val SDK = "get_sdk"
+        private const val PATH = "path"
     }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
@@ -45,6 +47,8 @@ class MainActivity : FlutterActivity() {
                 SHARE -> share(call.argument<List<String>>("uris")!!)
                 DELETE -> delete(call.argument<List<String>>("uris")!!)
                 DELETE_SINGLE -> deleteSingle(call.argument<String>("uri")!!, result)
+                SDK -> result.success(getVersionSdk())
+                PATH -> result.success(getPath())
                 else -> result.notImplemented()
             }
         }
@@ -72,57 +76,79 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun save(byteArray: ByteArray, name: String, type: Int): String? {
+        //Type
+        //1 - Image
+        //2 - Video
 
         val resolver = context.contentResolver
 
-        if (Build.VERSION.SDK_INT >= 29) {
+        var dir =
+            File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).absolutePath + File.separator + FOLDER_NAME)
+        if (!dir.exists())
+            dir.mkdir()
 
-            val values = ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-                if (type == 2) {
-                    put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+        dir =
+            File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES).absolutePath + File.separator + FOLDER_NAME)
+        if (!dir.exists())
+            dir.mkdir()
+
+        val values = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+            if (type == 2) {
+                put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+                if (getVersionSdk() < 29)
+                    put(
+                        MediaStore.MediaColumns.DATA,
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES).absolutePath + File.separator + FOLDER_NAME + File.separator + name + ".mp4"
+                    )
+                else
                     put(
                         MediaStore.MediaColumns.RELATIVE_PATH,
                         Environment.DIRECTORY_MOVIES + File.separator + FOLDER_NAME
                     )
-                } else {
-                    put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            } else {
+                put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+                if (getVersionSdk() < 29)
+                    put(
+                        MediaStore.MediaColumns.DATA,
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).absolutePath + File.separator + FOLDER_NAME + File.separator + name + ".jpg"
+                    )
+                else
                     put(
                         MediaStore.MediaColumns.RELATIVE_PATH,
                         Environment.DIRECTORY_PICTURES + File.separator + FOLDER_NAME
                     )
-                }
+            }
+            if (getVersionSdk() >= 29)
                 put(MediaStore.MediaColumns.IS_PENDING, true)
-            }
-
-            val uri = if (type == 2)
-                resolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
-            else
-                resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-
-            try {
-                val fos = resolver.openOutputStream(uri!!)
-
-                fos!!.write(byteArray)
-                fos.close()
-
-                values.put(MediaStore.MediaColumns.IS_PENDING, false)
-
-                resolver.update(uri, values, null, null)
-            } catch (e: Exception) {
-                uri?.let {
-                    resolver.delete(it, null, null)
-                }
-                return "uri is null"
-            }
-
-            return uri.toString()
-
-        } else {
-            // TODO below ANDROID
-            //below A10
-            return null
         }
+
+        val uri = if (type == 2)
+            resolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
+        else
+            resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+
+        try {
+            val fos = resolver.openOutputStream(uri!!)
+
+            fos!!.write(byteArray)
+            fos.close()
+
+            if (getVersionSdk() >= 29) {
+                values.put(MediaStore.MediaColumns.IS_PENDING, false)
+                resolver.update(uri, values, null, null)
+            }
+
+        } catch (e: Exception) {
+            uri?.let {
+                resolver.delete(it, null, null)
+            }
+            e.stackTrace
+            e.message
+            return "uri is null"
+        }
+
+        return uri.toString()
 
     }
 
@@ -152,5 +178,13 @@ class MainActivity : FlutterActivity() {
         val resolver = context.contentResolver
         resolver.delete(Uri.parse(uri), null, null)
         result.success("")
+    }
+
+    private fun getVersionSdk(): Int {
+        return Build.VERSION.SDK_INT
+    }
+
+    private fun getPath(): String {
+        return context.getExternalFilesDir(null)!!.absolutePath
     }
 }

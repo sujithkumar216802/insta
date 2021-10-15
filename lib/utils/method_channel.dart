@@ -6,8 +6,8 @@ const MethodChannel _channel =
     MethodChannel('com.example.insta_downloader/folder');
 
 saveFile(Uint8List byteArray, String name, int fileType) async {
-  return await _channel
-      .invokeMethod('save', {'byte_array': byteArray, 'name': name, 'file_type': fileType});
+  return await _channel.invokeMethod(
+      'save', {'byte_array': byteArray, 'name': name, 'file_type': fileType});
 }
 
 getFile(String uri) async {
@@ -28,4 +28,12 @@ deleteFiles(List<String> uris) {
 
 deleteFile(String uri) async {
   await _channel.invokeMethod('delete_single', {'uri': uri});
+}
+
+getSdk() async {
+  return await _channel.invokeMethod<int>('get_sdk');
+}
+
+getPath() async {
+  return await _channel.invokeMethod<String>('path');
 }
