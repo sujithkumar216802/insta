@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_downloader/enums/status_enum.dart';
 import 'package:insta_downloader/ui/screen/history_view.dart';
 import 'package:insta_downloader/ui/screen/input.dart';
+import 'package:insta_downloader/utils/method_channel.dart';
+import 'package:insta_downloader/utils/permission.dart';
+import 'package:insta_downloader/utils/reponse_helper.dart';
 
 import 'widget/drawer.dart';
 
@@ -50,7 +54,11 @@ class _CurrentPageState extends State<CurrentPage> {
     }
   }
 
-  change(int x) {
+  change(int x) async {
+    if (x == 2 && await getSdk() < 29 && !(await getDownloadPermission())) {
+      responseHelper(context, Status.PERMISSION_NOT_GRANTED);
+      return;
+    }
     setState(() {
       state = x;
     });

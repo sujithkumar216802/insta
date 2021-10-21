@@ -23,7 +23,7 @@ responseHelper(context, status) {
       break;
     case Status.PERMISSION_NOT_GRANTED:
       showDialogueWithText(
-          context, 'Permission Required', 'Required permission Not granted');
+          context, 'Permission Required', 'Permission not granted');
       break;
     case Status.ERROR_WHILE_SAVING_FILE:
       showDialogueWithText(context, 'Error', 'Error while saving file');

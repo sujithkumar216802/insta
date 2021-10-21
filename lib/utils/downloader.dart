@@ -5,6 +5,7 @@ import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/utils/database_helper.dart';
 import 'package:insta_downloader/utils/extractor.dart';
 import 'package:insta_downloader/utils/method_channel.dart';
+import 'package:insta_downloader/utils/permission.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/history_model.dart';
@@ -12,6 +13,10 @@ import '../models/history_model.dart';
 const uuid = Uuid();
 
 downloadFile(var values, String postUrl) async {
+
+  if (await getSdk() < 29 && !(await getDownloadPermission()))
+    return Status.PERMISSION_NOT_GRANTED;
+
   //post download
   var urls = values["links"];
   for (FileInfo url in urls) {
@@ -47,6 +52,9 @@ downloadFile(var values, String postUrl) async {
 
 updateHistory(List<FileInfo> list) async {
   //post download
+  if (await getSdk() < 29 && !(await getDownloadPermission()))
+    return Status.PERMISSION_NOT_GRANTED;
+
   for (FileInfo url in list) {
     try {
       var response = await http.get(Uri.parse(url.url));

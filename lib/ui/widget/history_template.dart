@@ -6,10 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:insta_downloader/enums/file_type_enum.dart';
 import 'package:insta_downloader/enums/post_availability_enum.dart';
+import 'package:insta_downloader/enums/status_enum.dart';
 import 'package:insta_downloader/ui/widget/pop_up_menu.dart';
 import 'package:insta_downloader/ui/widget/video_player.dart';
 import 'package:insta_downloader/utils/file_checker.dart';
 import 'package:insta_downloader/utils/method_channel.dart';
+import 'package:insta_downloader/utils/permission.dart';
+import 'package:insta_downloader/utils/reponse_helper.dart';
 
 import '../../models/history_model.dart';
 import 'imageWidget.dart';
@@ -181,8 +184,13 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
       return Container();
   }
 
+  //TODO Optimise
   show() async {
     showWidgets = [];
+    if (await getSdk() < 29 && !(await getDownloadPermission())) {
+      responseHelper(context, Status.PERMISSION_NOT_GRANTED);
+      return;
+    }
     for (int i in indexes) {
       Uint8List list = await getFile(history.files[i].uri);
 
@@ -209,6 +217,10 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
         shareFiles([history.files[index].uri]);
         break;
       case 'delete':
+        if (await getSdk() < 29 && !(await getDownloadPermission())) {
+          responseHelper(context, Status.PERMISSION_NOT_GRANTED);
+          return;
+        }
         await deleteFile(history.files[index].uri);
         init();
         break;
