@@ -34,6 +34,7 @@ class _CurrentPageState extends State<CurrentPage> {
           setState(() {
             share = true;
             _sharedText = value;
+            change(1);
           });
         }, onError: (err) {
           print("getLinkStream error: $err");
@@ -44,6 +45,7 @@ class _CurrentPageState extends State<CurrentPage> {
       setState(() {
         share = true;
         _sharedText = value;
+        change(1);
       });
     });
   }
