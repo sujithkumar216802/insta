@@ -2,9 +2,12 @@ package com.example.insta_downloader
 
 import android.content.ContentValues
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Environment
+import android.os.PersistableBundle
 import android.provider.MediaStore
 import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterActivity
@@ -26,6 +29,15 @@ class MainActivity : FlutterActivity() {
         private const val FOLDER_NAME = "Insta Downloader"
         private const val SDK = "get_sdk"
         private const val PATH = "path"
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+        if (intent.getIntExtra("org.chromium.chrome.extra.TASK_ID", -1) == this.taskId) {
+            this.finish()
+            intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
+        super.onCreate(savedInstanceState, persistentState)
     }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {

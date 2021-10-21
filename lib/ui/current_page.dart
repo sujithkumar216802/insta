@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_downloader/enums/status_enum.dart';
@@ -6,6 +8,7 @@ import 'package:insta_downloader/ui/screen/input.dart';
 import 'package:insta_downloader/utils/method_channel.dart';
 import 'package:insta_downloader/utils/permission.dart';
 import 'package:insta_downloader/utils/reponse_helper.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 import 'widget/drawer.dart';
 
@@ -18,6 +21,32 @@ class CurrentPage extends StatefulWidget {
 
 class _CurrentPageState extends State<CurrentPage> {
   int state = 1;
+  String _sharedText = "";
+  StreamSubscription _intentDataStreamSubscription;
+  bool share = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // For sharing or opening urls/text coming from outside the app while the app is in the memory
+    _intentDataStreamSubscription =
+        ReceiveSharingIntent.getTextStream().listen((String value) {
+          setState(() {
+            share = true;
+            _sharedText = value;
+          });
+        }, onError: (err) {
+          print("getLinkStream error: $err");
+        });
+
+    // For sharing or opening urls/text coming from outside the app while the app is closed
+    ReceiveSharingIntent.getInitialText().then((String value) {
+      setState(() {
+        share = true;
+        _sharedText = value;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +72,10 @@ class _CurrentPageState extends State<CurrentPage> {
   page(int x) {
     switch (x) {
       case 1:
+        if(share) {
+          share = false;
+          return Input(share: _sharedText);
+        }
         return Input();
         break;
       case 2:
@@ -63,4 +96,11 @@ class _CurrentPageState extends State<CurrentPage> {
       state = x;
     });
   }
+
+  @override
+  void dispose() {
+    _intentDataStreamSubscription.cancel();
+    super.dispose();
+  }
+
 }

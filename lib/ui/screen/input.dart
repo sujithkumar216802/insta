@@ -14,6 +14,10 @@ import 'package:insta_downloader/utils/permission.dart';
 import 'package:insta_downloader/utils/reponse_helper.dart';
 
 class Input extends StatelessWidget {
+  Input({String share}) {
+    if (share != null) UrlController.text = share;
+  }
+
   final UrlController = TextEditingController();
 
   @override
