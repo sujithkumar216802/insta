@@ -8,13 +8,16 @@ checkAllFiles(History history) async {
   List<int> availableIndexes = [];
   List<String> uris = [];
   List<FileInfo> notAvailableFilesInfo = [];
+  List<int> notAvailableIndexes = [];
 
   for (int i = 0; i < history.files.length; i++) {
     if (await checkIfFileExists(history.files[i].uri)) {
       availableIndexes.add(i);
       uris.add(history.files[i].uri);
-    } else
+    } else {
       notAvailableFilesInfo.add(history.files[i]);
+      notAvailableIndexes.add(i);
+    }
   }
 
   if (availableIndexes.length == history.files.length)
@@ -25,6 +28,7 @@ checkAllFiles(History history) async {
     'post_availability': postAvailability,
     'available_indexes': availableIndexes,
     'available_files_uri': uris,
-    'not_available_files_info': notAvailableFilesInfo
+    'not_available_files_info': notAvailableFilesInfo,
+    'not_available_indexes': notAvailableIndexes
   };
 }

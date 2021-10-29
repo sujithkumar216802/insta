@@ -1,3 +1,4 @@
+//TODO IMPROVEMENTS delete unnecessary files, make it readable.. just rewrite afterwards
 import 'package:http/http.dart' as http;
 import 'package:insta_downloader/enums/file_type_enum.dart';
 import 'package:insta_downloader/enums/status_enum.dart';
@@ -12,25 +13,32 @@ import '../models/history_model.dart';
 
 const uuid = Uuid();
 
-downloadFile(var values, String postUrl) async {
-
+downloadFile(var values, String postUrl, {bool update = false}) async {
   if (await getSdk() < 29 && !(await getDownloadPermission()))
     return Status.PERMISSION_NOT_GRANTED;
 
   //post download
   var urls = values["links"];
   for (FileInfo url in urls) {
-    var response = await http.get(Uri.parse(url.url));
-    var name = uuid.v1();
-    if (url.fileType == FileType.VIDEO)
-      url.uri =
-          await saveFile(response.bodyBytes, name, FileType.VIDEO.toInt());
-    else
-      url.uri =
-          await saveFile(response.bodyBytes, name, FileType.IMAGE.toInt());
+    try {
+      var response = await http.get(Uri.parse(url.url));
+      var name = uuid.v1();
+      if (url.fileType == FileType.VIDEO)
+        url.uri =
+            await saveFile(response.bodyBytes, name, FileType.VIDEO.toInt());
+      else
+        url.uri =
+            await saveFile(response.bodyBytes, name, FileType.IMAGE.toInt());
 
-    if (url.uri == "uri is null") return Status.ERROR_WHILE_SAVING_FILE;
-    url.name = name;
+      if (url.uri == "uri is null") return Status.ERROR_WHILE_SAVING_FILE;
+      url.name = name;
+    } catch (ex) {
+      return Status.FAILURE;
+    }
+  }
+
+  if (update) {
+    return values['links'];
   }
 
   //thumbnail
@@ -48,16 +56,24 @@ downloadFile(var values, String postUrl) async {
       values['description'],
       values['account_tag'],
       values['ratio']));
+
+  return Status.SUCCESS;
 }
 
-updateHistory(List<FileInfo> list) async {
+updateHistory(List<FileInfo> list, String url, List<int> listIndexes) async {
   //post download
+  bool expired = false;
+
   if (await getSdk() < 29 && !(await getDownloadPermission()))
     return Status.PERMISSION_NOT_GRANTED;
 
   for (FileInfo url in list) {
     try {
       var response = await http.get(Uri.parse(url.url));
+      if (response.statusCode == 403) {
+        expired = true;
+        break;
+      }
       if (url.fileType == FileType.VIDEO)
         url.uri = await saveFile(
             response.bodyBytes, url.name, FileType.VIDEO.toInt());
@@ -67,38 +83,46 @@ updateHistory(List<FileInfo> list) async {
 
       if (url.uri == "uri is null") return Status.ERROR_WHILE_SAVING_FILE;
     } catch (ex) {
-      // post deleted or the account went private
       return Status.FAILURE;
+    }
+  }
+
+  if (expired) {
+    var ret = await getDetails(url, update: true);
+    if (ret is Status) return ret;
+    for (int i = 0; i < listIndexes.length; i++) {
+      list[i].url = ret[listIndexes[i]].url;
+      list[i].uri = ret[listIndexes[i]].uri;
+      list[i].name = ret[listIndexes[i]].name;
     }
   }
 
   return Status.SUCCESS;
 }
 
-getDetails(String url) async {
+getDetails(String url, {bool update = false}) async {
+  //TODO default return val
   try {
     var response = await http.get(Uri.parse(url));
 
     switch (response.statusCode) {
       case 200:
         var extractedInfo = extract(response.body);
-
         if (extractedInfo != Status.PRIVATE) {
           try {
-            var status = await downloadFile(extractedInfo, url);
-            if (status != null) return status;
+            return await downloadFile(extractedInfo, url, update: update);
           } catch (ex) {
             return Status.FAILURE;
           }
         } else {
-          return extractedInfo;
+          return Status.PRIVATE;
         }
-
-        return Status.SUCCESS;
         break;
       case 404:
         return Status.NOT_FOUND;
         break;
+      default:
+        return Status.FAILURE;
     }
   } catch (ex) {
     return Status.NO_INTERNET;

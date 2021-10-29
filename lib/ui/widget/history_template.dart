@@ -168,13 +168,20 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                 ),
               ),
               (showFiles)
-                  ? AspectRatio(
-                      aspectRatio: history.ratio,
-                      child: PageView(
-                        pageSnapping: true,
-                        children: showWidgets,
-                      ),
-                    )
+                  ? showWidgets.length > 0
+                      ? AspectRatio(
+                          aspectRatio: history.ratio,
+                          child: PageView(
+                            pageSnapping: true,
+                            children: showWidgets,
+                          ),
+                        )
+                      : Container(
+                          child: Text(
+                            "Nothing to show here",
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        )
                   : Container()
             ],
           ),
@@ -184,7 +191,7 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
       return Container();
   }
 
-  //TODO Optimise
+  //TODO Optimise not copy the files if it's not necessary.. don't call it until the user opens it maybe
   show() async {
     showWidgets = [];
     if (await getSdk() < 29 && !(await getDownloadPermission())) {
@@ -194,16 +201,16 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
     for (int i in indexes) {
       Uint8List list = await getFile(history.files[i].uri);
 
-      //caching video file
-      // TODO if none show up
-      String path = await getPath();
-      cache.add(path + history.files[i].name);
-      File cacheFile = File(path + history.files[i].name);
-      await cacheFile.writeAsBytes(list);
-
-      if (history.files[i].fileType == FileType.VIDEO)
+      if (history.files[i].fileType == FileType.VIDEO){
+        //caching video file
+        // TODO if none show up
+        String path = await getPath();
+        cache.add(path + history.files[i].name);
+        File cacheFile = File(path + history.files[i].name);
+        await cacheFile.writeAsBytes(list);
         showWidgets.add(VideoPlayerWidget(
             video: cacheFile, function: popUpMenuFunction, index: i));
+      }
       else
         showWidgets.add(
             ImageWidget(list: list, function: popUpMenuFunction, index: i));

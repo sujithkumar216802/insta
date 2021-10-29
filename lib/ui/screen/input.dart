@@ -28,7 +28,10 @@ class Input extends StatelessWidget {
           children: [
             Container(
               margin: EdgeInsets.fromLTRB(10, 20, 10, 20),
-              width: MediaQuery.of(context).size.width - 20,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width - 20,
               child: TextField(
                 controller: UrlController,
                 decoration: InputDecoration(
@@ -45,7 +48,10 @@ class Input extends StatelessWidget {
               height: 48,
               margin: EdgeInsets.all(10),
               child: ElevatedButton(onPressed: paste, child: Text("Paste")),
-              width: MediaQuery.of(context).size.width / 2 - 20,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width / 2 - 20,
             ),
             Container(
               height: 48,
@@ -55,7 +61,10 @@ class Input extends StatelessWidget {
                     download(context);
                   },
                   child: Text("Download")),
-              width: MediaQuery.of(context).size.width / 2 - 20,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width / 2 - 20,
             )
           ],
         )
@@ -92,8 +101,8 @@ class Input extends StatelessWidget {
 
         Map check = await checkAllFiles(history);
         PostAvailability postAvailability = check['post_availability'];
-        List<FileInfo> notAvailableFilesInfo =
-            check['not_available_files_info'];
+        List<FileInfo> notAvailableFilesInfo = check['not_available_files_info'];
+        List<int> notAvailableIndexes = check['not_available_indexes'];
 
         if (postAvailability == PostAvailability.ALL) {
           //show dialog
@@ -101,7 +110,7 @@ class Input extends StatelessWidget {
           return;
         } else {
           showDialogueWithLoadingBar(context, 'Downloading');
-          var status = await updateHistory(notAvailableFilesInfo);
+          var status = await updateHistory(notAvailableFilesInfo, history.url, notAvailableIndexes);
           Navigator.pop(context);
           responseHelper(context, status);
 

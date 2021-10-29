@@ -29,25 +29,36 @@ class _HistoryViewState extends State<HistoryView> {
 
   _HistoryViewState() {
     DatabaseHelper.instance.getAllHistory().then((value) {
-      setState(() => list = value);
+      setState(() => list = value.reversed.toList());
     });
   }
 
-  //TODO Optimise
+  //TODO Optimise pagination maybe
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      child: ListView.builder(
-          itemCount: list.length,
-          itemBuilder: (BuildContext context, int index) {
-            return HistoryTemplate(
-                key: ValueKey(list[index].url),
-                history: list[index],
-                index: index,
-                function: popUpMenuFunction);
-          }),
-    );
+    return list.length == 0
+        ? Container(
+            child: Center(
+              child: Text(
+                "Nothing to show here",
+                style: TextStyle(fontSize: 32),
+              ),
+            ),
+          )
+        : Container(
+            width: MediaQuery.of(context).size.width,
+            child: ListView.builder(
+                cacheExtent: (MediaQuery.of(context).size.width * 6 / 5) *
+                    (list.length + 5),
+                itemCount: list.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return HistoryTemplate(
+                      key: ValueKey(list[index].url),
+                      history: list[index],
+                      index: index,
+                      function: popUpMenuFunction);
+                }),
+          );
   }
 
   void popUpMenuFunction(String value, int index) async {
@@ -59,6 +70,7 @@ class _HistoryViewState extends State<HistoryView> {
     PostAvailability postAvailability = check['post_availability'];
     List<String> availableFiles = check['available_files_uri'];
     List<FileInfo> notAvailableFilesInfo = check['not_available_files_info'];
+    List<int> notAvailableIndexes = check['not_available_indexes'];
 
     switch (value) {
       case 'url':
@@ -87,7 +99,7 @@ class _HistoryViewState extends State<HistoryView> {
         break;
       case 'download':
         showDialogueWithLoadingBar(context, 'Downloading');
-        var status = await updateHistory(notAvailableFilesInfo);
+        var status = await updateHistory(notAvailableFilesInfo,list[index].url, notAvailableIndexes);
         Navigator.pop(context);
         responseHelper(context, status);
 
