@@ -19,10 +19,13 @@ class ImageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      alignment: Alignment.topRight,
+      alignment: Alignment.center,
       children: [
-        Image.memory(list),
-        TripleDot(callbackFunction: function, index: index, isSingleFile: true)
+        Image.memory(list, alignment: Alignment.center,),
+        Align(
+          alignment: Alignment.topRight,
+          child: TripleDot(callbackFunction: function, index: index, isSingleFile: true),
+        )
       ],
     );
   }

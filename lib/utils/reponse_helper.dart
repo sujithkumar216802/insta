@@ -17,9 +17,9 @@ responseHelper(context, status) {
     case Status.NOT_FOUND:
       showDialogueWithText(context, 'Not found', 'Post does not exist');
       break;
-    case Status.PRIVATE:
-      showDialogueWithText(
-          context, 'Success', 'File(s) downloaded successfully');
+    // case Status.PRIVATE:
+    //   showDialogueWithText(
+    //       context, 'Private', 'Post is private');
       break;
     case Status.PERMISSION_NOT_GRANTED:
       showDialogueWithText(

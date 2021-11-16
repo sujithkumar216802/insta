@@ -26,10 +26,14 @@ class HistoryView extends StatefulWidget {
 
 class _HistoryViewState extends State<HistoryView> {
   List<History> list = [];
+  bool initialLoading = true;
 
   _HistoryViewState() {
     DatabaseHelper.instance.getAllHistory().then((value) {
-      setState(() => list = value.reversed.toList());
+      setState(() {
+        list = value.reversed.toList();
+        initialLoading = false;
+      });
     });
   }
 
@@ -39,7 +43,9 @@ class _HistoryViewState extends State<HistoryView> {
     return list.length == 0
         ? Container(
             child: Center(
-              child: Text(
+              child: (initialLoading) ?
+              CircularProgressIndicator()
+              :Text(
                 "Nothing to show here",
                 style: TextStyle(fontSize: 32),
               ),

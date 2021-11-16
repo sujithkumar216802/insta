@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:insta_downloader/enums/status_enum.dart';
 import 'package:insta_downloader/ui/screen/history_view.dart';
 import 'package:insta_downloader/ui/screen/input.dart';
+import 'package:insta_downloader/ui/screen/splash_screen.dart';
 import 'package:insta_downloader/utils/method_channel.dart';
 import 'package:insta_downloader/utils/permission.dart';
 import 'package:insta_downloader/utils/reponse_helper.dart';
+import 'package:insta_downloader/utils/web_view.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 import 'widget/drawer.dart';
@@ -20,7 +22,7 @@ class CurrentPage extends StatefulWidget {
 }
 
 class _CurrentPageState extends State<CurrentPage> {
-  int state = 1;
+  int state = 0;
   String _sharedText = "";
   StreamSubscription _intentDataStreamSubscription;
   bool share = false;
@@ -31,21 +33,21 @@ class _CurrentPageState extends State<CurrentPage> {
     // For sharing or opening urls/text coming from outside the app while the app is in the memory
     _intentDataStreamSubscription =
         ReceiveSharingIntent.getTextStream().listen((String value) {
-          setState(() {
-            share = true;
-            _sharedText = value;
-            change(1);
-          });
-        }, onError: (err) {
-          print("getLinkStream error: $err");
-        });
+      setState(() {
+        share = true;
+        _sharedText = value;
+        change(0);
+      });
+    }, onError: (err) {
+      print("getLinkStream error: $err");
+    });
 
     // For sharing or opening urls/text coming from outside the app while the app is closed
     ReceiveSharingIntent.getInitialText().then((String value) {
       setState(() {
         share = true;
         _sharedText = value;
-        change(1);
+        change(0);
       });
     });
   }
@@ -59,7 +61,7 @@ class _CurrentPageState extends State<CurrentPage> {
         elevation: 10,
       ),
       body: SafeArea(
-        child: page(state),
+        child: page(),
         bottom: true,
         top: true,
         left: true,
@@ -71,18 +73,21 @@ class _CurrentPageState extends State<CurrentPage> {
     );
   }
 
-  page(int x) {
-    switch (x) {
+  page() {
+    if (state == 0 && WebViewHelper.webView.isRunning()) {
+      state = 1;
+    }
+    switch (state) {
+      case 0:
+        return SplashScreen(onChange: change);
       case 1:
-        if(share) {
+        if (share) {
           share = false;
           return Input(share: _sharedText);
         }
         return Input();
-        break;
       case 2:
         return HistoryView();
-        break;
       // case 3:
       //   return Settings();
       //   break;
@@ -104,5 +109,4 @@ class _CurrentPageState extends State<CurrentPage> {
     _intentDataStreamSubscription.cancel();
     super.dispose();
   }
-
 }

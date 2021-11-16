@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 import 'ui/current_page.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  if (Platform.isAndroid) {
+    await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
+  }
+
   runApp(MyApp());
 }
 
