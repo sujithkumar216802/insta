@@ -44,7 +44,7 @@ getDetails(String url, {bool update = false}) async {
   }
 }
 
-getDetailsPrivate(String url) async {
+getDetailsPrivate(String url, {bool update = false}) async {
 
   WebViewHelper.completed = false;
   await WebViewHelper.controller
@@ -57,10 +57,10 @@ getDetailsPrivate(String url) async {
   slash = url.indexOf('/', slash) + 1;
   String p = url.substring('https://www.instagram.com'.length, slash);
   var valuesDict = extract(html, p: p, private: true);
-  return await downloadFile(valuesDict, url);
+  return await downloadFile(valuesDict, url, update: update);
 }
 
-getDetailsStory(String url) async {
+getDetailsStory(String url, {bool update = false}) async {
 
   WebViewHelper.completed = false;
   await WebViewHelper.controller
@@ -95,7 +95,7 @@ getDetailsStory(String url) async {
   var valuesDict =
   extract(html, storyDetails: true, linkStoryId: linkStoryId);
 
-  return await downloadFile(valuesDict, url);
+  return await downloadFile(valuesDict, url, update: update);
 }
 
 updateHistory(List<FileInfo> list, String url, List<int> listIndexes) async {
@@ -126,13 +126,47 @@ updateHistory(List<FileInfo> list, String url, List<int> listIndexes) async {
   }
 
   if (expired) {
-    //TODO FOR PRIVATE AND STORIES
-    var ret = await getDetails(url, update: true);
-    if (ret is Status) return ret;
-    for (int i = 0; i < listIndexes.length; i++) {
-      list[i].url = ret[listIndexes[i]].url;
-      list[i].uri = ret[listIndexes[i]].uri;
-      list[i].name = ret[listIndexes[i]].name;
+    print("WOOOOOOOOOOOOOOOOOOOOOOW");
+    if (url.startsWith("https://www.instagram.com/stories/")) {
+      WebViewHelper.completed = false;
+      await WebViewHelper.controller.loadUrl(urlRequest: URLRequest(url: Uri.parse("https://www.instagram.com/")),);
+      if (!WebViewHelper.completed)
+        await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100)).then((_) => !WebViewHelper.completed));
+
+      if (await WebViewHelper.isLoggedIn()) {
+        var status =  await getDetailsStory(url, update: true);
+        if(status is Status) return status;
+        for (int i = 0; i < listIndexes.length; i++) {
+          list[i].url = status[listIndexes[i]].url;
+          list[i].uri = status[listIndexes[i]].uri;
+          list[i].name = status[listIndexes[i]].name;
+        }
+      } else {
+        return Status.NOT_LOGGED_IN;
+      }
+    } else {
+      var status = await getDetails(url, update: true);
+      if (status == Status.PRIVATE) {
+        WebViewHelper.completed = false;
+        await WebViewHelper.controller.loadUrl(urlRequest: URLRequest(
+            url: Uri.parse("https://www.instagram.com/")),);
+        if (!WebViewHelper.completed)
+          await Future.doWhile(() =>
+              Future.delayed(Duration(milliseconds: 100)).then((
+                  _) => !WebViewHelper.completed));
+
+        if (await WebViewHelper.isLoggedIn()) {
+          status = await getDetailsPrivate(url, update: true);
+          if(status is Status) return status;
+          for (int i = 0; i < listIndexes.length; i++) {
+            list[i].url = status[listIndexes[i]].url;
+            list[i].uri = status[listIndexes[i]].uri;
+            list[i].name = status[listIndexes[i]].name;
+          }
+        } else {
+          return Status.NOT_LOGGED_IN;
+        }
+      }
     }
   }
 
