@@ -29,8 +29,6 @@ class Input extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _context = context;
-    UrlController.text =
-        "https://www.instagram.com/p/CVp_jY0ICk6fn7fVlUv0rOUOIcQOZgqSS1PPZ40/";
 
     return Column(
       children: [
@@ -128,12 +126,6 @@ class Input extends StatelessWidget {
     showDialogueWithLoadingBar(context, 'Downloading');
 
     if (url.startsWith("https://www.instagram.com/stories/")) {
-
-      WebViewHelper.completed = false;
-      await WebViewHelper.controller.loadUrl(urlRequest: URLRequest(url: Uri.parse("https://www.instagram.com/")),);
-      if (!WebViewHelper.completed)
-        await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100)).then((_) => !WebViewHelper.completed));
-
       if (await WebViewHelper.isLoggedIn()) {
         var status = await getDetailsStory(url);
         Navigator.pop(context);
@@ -144,12 +136,6 @@ class Input extends StatelessWidget {
     } else {
       var status = await getDetails(url);
       if (status == Status.PRIVATE) {
-
-        WebViewHelper.completed = false;
-        await WebViewHelper.controller.loadUrl(urlRequest: URLRequest(url: Uri.parse("https://www.instagram.com/")),);
-        if (!WebViewHelper.completed)
-          await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100)).then((_) => !WebViewHelper.completed));
-
         if (await WebViewHelper.isLoggedIn()) {
           status = await getDetailsPrivate(url);
           Navigator.pop(context);

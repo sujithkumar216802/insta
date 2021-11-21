@@ -48,6 +48,7 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
   List<String> cache = [];
 
   bool showFiles = false;
+  bool filesLoaded = false;
   bool disposeBool = false;
 
   //for updating history by downloading missing files
@@ -61,12 +62,16 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
     var value = await checkAllFiles(history);
     postAvailability = value['post_availability'];
     indexes = value['available_indexes'];
-    show();
+    filesLoaded = false;
+    setState(() {});
+    //show();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (postAvailability != null && indexes != null)
+    if (showFiles && !filesLoaded) show();
+
+    if (postAvailability != null)
       return ListTile(
         title: Container(
           margin: EdgeInsets.fromLTRB(
@@ -167,7 +172,7 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                   ],
                 ),
               ),
-              (showFiles)
+              (showFiles && filesLoaded)
                   ? showWidgets.length > 0
                       ? AspectRatio(
                           aspectRatio: history.ratio,
@@ -182,7 +187,9 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                             style: TextStyle(fontSize: 20),
                           ),
                         )
-                  : Container()
+                  : (!showFiles)
+                      ? Container()
+                      : Center(child: CircularProgressIndicator(),)
             ],
           ),
         ),
@@ -191,9 +198,14 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
       return Container();
   }
 
-  //TODO Optimise not copy the files if it's not necessary.. don't call it until the user opens it maybe
   show() async {
     showWidgets = [];
+
+    //checking before showing just to be safe (overkill)
+    var value = await checkAllFiles(history);
+    postAvailability = value['post_availability'];
+    indexes = value['available_indexes'];
+
     if (await getSdk() < 29 && !(await getDownloadPermission())) {
       responseHelper(context, Status.PERMISSION_NOT_GRANTED);
       return;
@@ -201,7 +213,7 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
     for (int i in indexes) {
       Uint8List list = await getFile(history.files[i].uri);
 
-      if (history.files[i].fileType == FileType.VIDEO){
+      if (history.files[i].fileType == FileType.VIDEO) {
         //caching video file
         // TODO if none show up
         String path = await getPath();
@@ -210,11 +222,11 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
         await cacheFile.writeAsBytes(list);
         showWidgets.add(VideoPlayerWidget(
             video: cacheFile, function: popUpMenuFunction, index: i));
-      }
-      else
+      } else
         showWidgets.add(
             ImageWidget(list: list, function: popUpMenuFunction, index: i));
     }
+    filesLoaded = true;
     if (!disposeBool) setState(() {});
   }
 

@@ -28,27 +28,32 @@ class _HistoryViewState extends State<HistoryView> {
   List<History> list = [];
   bool initialLoading = true;
 
+  // int length = 0;
+  // int pageSize;
+
   _HistoryViewState() {
     DatabaseHelper.instance.getAllHistory().then((value) {
-      setState(() {
-        list = value.reversed.toList();
-        initialLoading = false;
-      });
+      list = value.reversed.toList();
+      // pageSize = (MediaQuery.of(context).size.height ~/
+      //         MediaQuery.of(context).size.width) *
+      //     5 + 3;
+      // length = list.length > pageSize ? pageSize : list.length;
+      initialLoading = false;
+      setState(() {});
     });
   }
 
-  //TODO Optimise pagination maybe
   @override
   Widget build(BuildContext context) {
     return list.length == 0
         ? Container(
             child: Center(
-              child: (initialLoading) ?
-              CircularProgressIndicator()
-              :Text(
-                "Nothing to show here",
-                style: TextStyle(fontSize: 32),
-              ),
+              child: (initialLoading)
+                  ? CircularProgressIndicator()
+                  : Text(
+                      "Nothing to show here",
+                      style: TextStyle(fontSize: 32),
+                    ),
             ),
           )
         : Container(
@@ -65,6 +70,43 @@ class _HistoryViewState extends State<HistoryView> {
                       function: popUpMenuFunction);
                 }),
           );
+    // return length == 0
+    //     ? Container(
+    //         child: Center(
+    //           child: (initialLoading)
+    //               ? CircularProgressIndicator()
+    //               : Text(
+    //                   "Nothing to show here",
+    //                   style: TextStyle(fontSize: 32),
+    //                 ),
+    //         ),
+    //       )
+    //     : Container(
+    //         width: MediaQuery.of(context).size.width,
+    //         child: NotificationListener<ScrollNotification>(
+    //           onNotification: (ScrollNotification info) {
+    //             if (info.metrics.pixels + MediaQuery.of(context).size.height >= info.metrics.maxScrollExtent &&
+    //                 list.length != length) {
+    //               length = length + pageSize > list.length
+    //                   ? list.length
+    //                   : length + pageSize;
+    //               setState(() {});
+    //             }
+    //             return true;
+    //           },
+    //           child: ListView.builder(
+    //               cacheExtent: (MediaQuery.of(context).size.width * 6 / 5) *
+    //                   (length + 5),
+    //               itemCount: length,
+    //               itemBuilder: (BuildContext context, int index) {
+    //                 return HistoryTemplate(
+    //                     key: ValueKey(list[index].url),
+    //                     history: list[index],
+    //                     index: index,
+    //                     function: popUpMenuFunction);
+    //               }),
+    //         ),
+    //       );
   }
 
   void popUpMenuFunction(String value, int index) async {
@@ -105,7 +147,8 @@ class _HistoryViewState extends State<HistoryView> {
         break;
       case 'download':
         showDialogueWithLoadingBar(context, 'Downloading');
-        var status = await updateHistory(notAvailableFilesInfo,list[index].url, notAvailableIndexes);
+        var status = await updateHistory(
+            notAvailableFilesInfo, list[index].url, notAvailableIndexes);
         Navigator.pop(context);
         responseHelper(context, status);
 

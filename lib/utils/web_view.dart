@@ -2,7 +2,6 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 import 'extractor.dart';
 
-//static to singleton maybe
 class WebViewHelper {
 
   static bool completed = false;
@@ -24,6 +23,12 @@ class WebViewHelper {
   }
 
   static isLoggedIn() async {
+    //preparation to check if the user is logged in
+    completed = false;
+    await controller.loadUrl(urlRequest: URLRequest(url: Uri.parse("https://www.instagram.com/")),);
+    if (!completed)
+      await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100)).then((_) => !completed));
+
     return extract(await controller.getHtml(), checkLogin: true);
   }
 }

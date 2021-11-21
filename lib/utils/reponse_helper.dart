@@ -28,5 +28,8 @@ responseHelper(context, status) {
     case Status.ERROR_WHILE_SAVING_FILE:
       showDialogueWithText(context, 'Error', 'Error while saving file');
       break;
+    case Status.NOT_LOGGED_IN:
+      showDialogueWithText(context, 'Not logged in', 'Not logged in');
+      break;
   }
 }
