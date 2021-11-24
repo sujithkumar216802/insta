@@ -29,6 +29,7 @@ class Input extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _context = context;
+    UrlController.text = "https://www.instagram.com/p/CTUpXU4hbzj/";
 
     return Column(
       children: [
@@ -125,25 +126,21 @@ class Input extends StatelessWidget {
     }
     showDialogueWithLoadingBar(context, 'Downloading');
 
+    var status;
     if (url.startsWith("https://www.instagram.com/stories/")) {
       if (await WebViewHelper.isLoggedIn()) {
-        var status = await getDetailsStory(url);
+        status = await getDetailsStory(url);
         Navigator.pop(context);
         responseHelper(context, status);
       } else {
         login();
       }
     } else {
-      var status = await getDetails(url);
-      if (status == Status.PRIVATE) {
-        if (await WebViewHelper.isLoggedIn()) {
-          status = await getDetailsPrivate(url);
-          Navigator.pop(context);
-          responseHelper(context, status);
-        } else {
-          login();
-        }
-      } else {
+      status = await getDetailsPost(url);
+      if(status == Status.INACCESSIBLE) {
+        login();
+      }
+      else {
         Navigator.pop(context);
         responseHelper(context, status);
       }
@@ -179,7 +176,7 @@ class Input extends StatelessWidget {
     if (UrlController.text.startsWith("https://www.instagram.com/stories/"))
       status = await getDetailsStory(UrlController.text);
     else
-      status = await getDetailsPrivate(UrlController.text);
+      status = await getDetailsPost(UrlController.text);
 
     Navigator.pop(_context);
     responseHelper(_context, status);

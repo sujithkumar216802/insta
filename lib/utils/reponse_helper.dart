@@ -10,16 +10,16 @@ responseHelper(context, status) {
     case Status.FAILURE:
       showDialogueWithText(context, 'Failure', 'Something went wrong');
       break;
-    case Status.NO_INTERNET:
+    case Status.INACCESSIBLE_LOGGED_IN:
       showDialogueWithText(
-          context, 'No Internet', 'Please be online while downloading');
+          context, 'Cannot Access', 'This post cannot be accessed');
       break;
     case Status.NOT_FOUND:
       showDialogueWithText(context, 'Not found', 'Post does not exist');
       break;
-    // case Status.PRIVATE:
+    // case Status.INACCESSIBLE:
     //   showDialogueWithText(
-    //       context, 'Private', 'Post is private');
+    //       context, 'INACCESSIBLE', 'Login to access the post');
       break;
     case Status.PERMISSION_NOT_GRANTED:
       showDialogueWithText(

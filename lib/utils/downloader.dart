@@ -14,36 +14,7 @@ import '../models/history_model.dart';
 
 const uuid = Uuid();
 
-getDetails(String url, {bool update = false}) async {
-  try {
-    var response = await http.get(Uri.parse(url));
-
-    switch (response.statusCode) {
-      case 200:
-        var extractedInfo = extract(response.body);
-        if (extractedInfo != Status.PRIVATE) {
-          try {
-            return await downloadAndSaveFiles(extractedInfo, url,
-                update: update);
-          } catch (ex) {
-            return Status.FAILURE;
-          }
-        } else {
-          return Status.PRIVATE;
-        }
-        break;
-      case 404:
-        return Status.NOT_FOUND;
-        break;
-      default:
-        return Status.FAILURE;
-    }
-  } catch (ex) {
-    return Status.NO_INTERNET;
-  }
-}
-
-getDetailsPrivate(String url, {bool update = false}) async {
+getDetailsPost(String url, {bool update = false}) async {
   WebViewHelper.completed = false;
   await WebViewHelper.controller
       .loadUrl(urlRequest: URLRequest(url: Uri.parse(url)));
@@ -55,7 +26,9 @@ getDetailsPrivate(String url, {bool update = false}) async {
   int slash = url.indexOf('/', 'https://www.instagram.com/'.length) + 1;
   slash = url.indexOf('/', slash) + 1;
   String p = url.substring('https://www.instagram.com'.length, slash);
-  var valuesDict = extract(html, p: p, private: true);
+  var valuesDict = extract(html, p: p);
+  if (valuesDict == Status.INACCESSIBLE ||
+      valuesDict == Status.INACCESSIBLE_LOGGED_IN) return valuesDict;
   return await downloadAndSaveFiles(valuesDict, url, update: update);
 }
 
@@ -100,7 +73,6 @@ getDetailsStory(String url, {bool update = false}) async {
 }
 
 updateHistory(List<FileInfo> list, String url, List<int> listIndexes) async {
-  //post download
   bool expired = false;
 
   if (await getSdk() < 29 && !(await getDownloadPermission()))
@@ -134,20 +106,18 @@ updateHistory(List<FileInfo> list, String url, List<int> listIndexes) async {
       else
         return Status.NOT_LOGGED_IN;
     } else {
-      status = await getDetails(url, update: true);
-      if (status == Status.PRIVATE) {
-        if (await WebViewHelper.isLoggedIn())
-          status = await getDetailsPrivate(url, update: true);
-        else
-          return Status.NOT_LOGGED_IN;
+      status = await getDetailsPost(url, update: true);
+    }
+
+    if (status == Status.SUCCESS) {
+      for (int i = 0; i < listIndexes.length; i++) {
+        list[i].url = status[listIndexes[i]].url;
+        list[i].uri = status[listIndexes[i]].uri;
+        list[i].name = status[listIndexes[i]].name;
       }
     }
-    if (status is Status) return status;
-    for (int i = 0; i < listIndexes.length; i++) {
-      list[i].url = status[listIndexes[i]].url;
-      list[i].uri = status[listIndexes[i]].uri;
-      list[i].name = status[listIndexes[i]].name;
-    }
+
+    return status;
   }
 
   return Status.SUCCESS;

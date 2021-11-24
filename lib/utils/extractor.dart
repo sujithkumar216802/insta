@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:insta_downloader/enums/file_type_enum.dart';
 import 'package:insta_downloader/enums/status_enum.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
-import 'package:insta_downloader/utils/web_view.dart';
 
 const sharedDataHeader = 'window._sharedData = ';
 
@@ -20,7 +19,6 @@ extract(String html,
     p = "",
     bool storyDetails = false,
     String linkStoryId = "",
-    private = false,
     checkLogin = false}) {
   List<FileInfo> links = [];
   String descriptionString = "";
@@ -93,12 +91,36 @@ extract(String html,
     bool sharedDataDone = false;
     bool additionalData = false;
     bool additionalDataDone = false;
+    bool login = false;
 
     var sharedDataDict;
     var additionalDataDict;
 
     String additionalDataHeader = "window.__additionalDataLoaded('$p',";
     String additionalDataFooter = ");";
+
+    /* When the user is not logged in: -
+    *     no matter if the post is accessible or not, ADDITIONAL DATA won't exist
+    *     for accessible post 'PostPage' will exist
+    *     for inaccessible post 'PostPage' will NOT exist
+    *
+    * When the user is logged in: -
+    *     for accessible post ADDITIONAL DATA will exist
+    *     for inaccessible post ADDITIONAL DATA will NOT exist
+    *     for accessible post 'PostPage' will exist but it's empty, so don't use that
+    *     for inaccessible post 'PostPage' will NOT exist
+    *
+    *
+    *
+    *
+    * At the end,
+    * inaccessible - 'PostPage' will not exist
+    *
+    * while logged in - ignore 'PostPage'
+    * while logged out - use 'PostPage'
+    *
+    *
+    * */
 
     for (int i = 0; i < html.length; i++) {
       if (!sharedDataDone) {
@@ -153,22 +175,26 @@ extract(String html,
         }
       }
 
-      if ((additionalDataDone && sharedDataDone) ||
-          (sharedDataDone && !private)) break;
+      if(sharedDataDone && !sharedDataDict['entry_data'].containsKey('PostPage')) {
+        if(sharedDataDict['config']['viewer'] != null)
+          return Status.INACCESSIBLE_LOGGED_IN;
+        return Status.INACCESSIBLE;
+      }
+
+
+      if ((additionalDataDone && sharedDataDone) || (sharedDataDone && !sharedDataDict['config'].containsKey('viewer'))) break;
     }
 
+    login = sharedDataDict['config']['viewer'] != null;
+
     //Check if the user is logged in
-    if (checkLogin) return sharedDataDict['config']['viewer'] != null;
+    if (checkLogin) return login;
 
     //STORY ID
     if (storyId)
       return sharedDataDict['entry_data']['StoriesPage'][0]['user']['id'];
 
-    //check if the post is private
-    if (!sharedDataDict['entry_data'].containsKey('PostPage') && !private)
-      return Status.PRIVATE;
-
-    if (!private)
+    if (!login)
       additionalDataDict = sharedDataDict['entry_data']['PostPage'][0]
           ['graphql']['shortcode_media'];
     else
