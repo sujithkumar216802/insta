@@ -29,7 +29,6 @@ class Input extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _context = context;
-    UrlController.text = "https://www.instagram.com/p/CTUpXU4hbzj/";
 
     return Column(
       children: [
@@ -128,19 +127,26 @@ class Input extends StatelessWidget {
 
     var status;
     if (url.startsWith("https://www.instagram.com/stories/")) {
-      if (await WebViewHelper.isLoggedIn()) {
+      var temp = await WebViewHelper.isLoggedIn();
+      if (temp is Status) {
+        Navigator.pop(context);
+        responseHelper(context, temp);
+        return;
+      }
+      if (temp) {
         status = await getDetailsStory(url);
         Navigator.pop(context);
         responseHelper(context, status);
       } else {
+        Navigator.pop(context);
         login();
       }
     } else {
       status = await getDetailsPost(url);
-      if(status == Status.INACCESSIBLE) {
+      if (status == Status.INACCESSIBLE) {
+        Navigator.pop(context);
         login();
-      }
-      else {
+      } else {
         Navigator.pop(context);
         responseHelper(context, status);
       }
@@ -157,9 +163,10 @@ class Input extends StatelessWidget {
                 initialUrlRequest:
                     URLRequest(url: Uri.parse("https://www.instagram.com/")),
                 onLoadStop: (controller, url) async {
-                  if (extract(await controller.getHtml(), checkLogin: true)) {
+                  var value =
+                      extract(await controller.getHtml(), checkLogin: true);
+                  if (!(value is Status) && value) {
                     loginCompleted();
-                    Navigator.pop(_context);
                   }
                 },
               ),

@@ -27,8 +27,7 @@ getDetailsPost(String url, {bool update = false}) async {
   slash = url.indexOf('/', slash) + 1;
   String p = url.substring('https://www.instagram.com'.length, slash);
   var valuesDict = extract(html, p: p);
-  if (valuesDict == Status.INACCESSIBLE ||
-      valuesDict == Status.INACCESSIBLE_LOGGED_IN) return valuesDict;
+  if (valuesDict is Status) return valuesDict;
   return await downloadAndSaveFiles(valuesDict, url, update: update);
 }
 
@@ -68,6 +67,7 @@ getDetailsStory(String url, {bool update = false}) async {
   String linkStoryId = url.substring(slash, slash2);
 
   var valuesDict = extract(html, storyDetails: true, linkStoryId: linkStoryId);
+  if (valuesDict is Status) return valuesDict;
 
   return await downloadAndSaveFiles(valuesDict, url, update: update);
 }
@@ -101,7 +101,10 @@ updateHistory(List<FileInfo> list, String url, List<int> listIndexes) async {
   if (expired) {
     var status;
     if (url.startsWith("https://www.instagram.com/stories/")) {
-      if (await WebViewHelper.isLoggedIn())
+      var temp = await WebViewHelper.isLoggedIn();
+      if (temp is Status) return temp;
+
+      if (temp)
         status = await getDetailsStory(url, update: true);
       else
         return Status.NOT_LOGGED_IN;
