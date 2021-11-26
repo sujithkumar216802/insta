@@ -178,7 +178,9 @@ extract(String html,
         }
 
         if(sharedDataDone && !loopCheck) {
-          if(!sharedDataDict['entry_data'].containsKey('PostPage')) {
+
+          //check if the post is accessible or not
+          if(!sharedDataDict['entry_data'].containsKey('PostPage') && !storyId) {
             login = sharedDataDict['config']['viewer'] != null;
             if(checkLogin) return login;
             if(login) {
@@ -187,7 +189,8 @@ extract(String html,
             return Status.INACCESSIBLE;
           }
 
-          if (additionalDataDone || !sharedDataDict['config'].containsKey('viewer')) break;
+          //check if additional data needs to be found
+          if (!sharedDataDict['config'].containsKey('viewer') || storyId) break;
 
           loopCheck = true;
         }

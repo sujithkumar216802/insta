@@ -22,10 +22,12 @@ getDetailsPost(String url, {bool update = false}) async {
     await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100))
         .then((_) => !WebViewHelper.completed));
 
+  //TODO find a better way
   String html = await WebViewHelper.controller.getHtml();
   int slash = url.indexOf('/', 'https://www.instagram.com/'.length) + 1;
   slash = url.indexOf('/', slash) + 1;
   String p = url.substring('https://www.instagram.com'.length, slash);
+
   var valuesDict = extract(html, p: p);
   if (valuesDict is Status) return valuesDict;
   return await downloadAndSaveFiles(valuesDict, url, update: update);
@@ -42,7 +44,9 @@ getDetailsStory(String url, {bool update = false}) async {
   String html = await WebViewHelper.controller.evaluateJavascript(
       source: "window.document.getElementsByTagName('html')[0].outerHTML;");
 
-  String storyId = extract(html, storyId: true);
+  var storyId = extract(html, storyId: true);
+  if(storyId is Status) return storyId;
+
   String toLoad;
   if (url.contains('highlights'))
     toLoad =
@@ -61,6 +65,7 @@ getDetailsStory(String url, {bool update = false}) async {
   html = await WebViewHelper.controller.evaluateJavascript(
       source: "window.document.getElementsByTagName('html')[0].outerHTML;");
 
+  //TODO find a better way
   int slash = "https://www.instagram.com/stories/".length;
   slash = url.indexOf('/', slash) + 1;
   int slash2 = url.indexOf('/', slash);

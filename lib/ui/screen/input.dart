@@ -74,6 +74,18 @@ class Input extends StatelessWidget {
   Future<void> download(BuildContext context) async {
     String url = UrlController.text;
 
+
+    //TODO find a better way
+    if(!url.startsWith('https://www.'))
+      url = url.replaceFirst('https://', 'https://www.');
+
+    if(url.contains('?')) {
+      int index = url.indexOf('?');
+      url = url.substring(0, index);
+      if(url[url.length - 1]!='/')
+        url = url + '/';
+    }
+
     if (url == "https://www.instagram.com/reel/" ||
         url == "https://www.instagram.com/p/" ||
         url == "https://www.instagram.com/tv/" ||
@@ -126,7 +138,7 @@ class Input extends StatelessWidget {
     showDownloadingDialogue(context);
 
     var status;
-    if (url.startsWith("https://www.instagram.com/stories/")) {
+    if (url.startsWith("https://www.instagram.com/stories/") || url.startsWith("https://instagram.com/stories/")) {
       var temp = await WebViewHelper.isLoggedIn();
       if (temp is Status) {
         Navigator.pop(context);
