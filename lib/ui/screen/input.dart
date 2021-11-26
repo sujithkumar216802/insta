@@ -110,7 +110,7 @@ class Input extends StatelessWidget {
           showDialogueWithText(context, 'Already Downloaded', 'Check History');
           return;
         } else {
-          showDialogueWithLoadingBar(context, 'Downloading');
+          showDownloadingDialogue(context);
           var status = await updateHistory(
               notAvailableFilesInfo, history.url, notAvailableIndexes);
           Navigator.pop(context);
@@ -123,7 +123,7 @@ class Input extends StatelessWidget {
         }
       }
     }
-    showDialogueWithLoadingBar(context, 'Downloading');
+    showDownloadingDialogue(context);
 
     var status;
     if (url.startsWith("https://www.instagram.com/stories/")) {

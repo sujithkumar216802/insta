@@ -9,19 +9,25 @@ showDialogueWithText(context, title, text) {
           ));
 }
 
-showDialogueWithLoadingBar(context, title) {
+showDownloadingDialogue(context) {
   showDialog(
       barrierDismissible: false,
       context: context,
-      builder: (_) => AlertDialog(
-          title: Text(title),
-          content: Align(
-            child: Container(
-                child: CircularProgressIndicator(),
-                padding: EdgeInsets.all(10),
-                width: MediaQuery.of(context).size.width / 5,
-                height: MediaQuery.of(context).size.width / 5),
-            alignment: Alignment.center,
-            heightFactor: 1,
-          )));
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return WillPopScope(
+              child: AlertDialog(
+                  title: const Text('Downloading'),
+                  content: Align(
+                    child: Container(
+                        child: CircularProgressIndicator(),
+                        padding: EdgeInsets.all(10),
+                        width: MediaQuery.of(context).size.width / 5,
+                        height: MediaQuery.of(context).size.width / 5),
+                    alignment: Alignment.center,
+                    heightFactor: 1,
+                  )),
+              onWillPop: () async => false);
+        });
+      });
 }

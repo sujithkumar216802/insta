@@ -146,7 +146,7 @@ class _HistoryViewState extends State<HistoryView> {
         setState(() {});
         break;
       case 'download':
-        showDialogueWithLoadingBar(context, 'Downloading');
+        showDownloadingDialogue(context);
         var status = await updateHistory(
             notAvailableFilesInfo, list[index].url, notAvailableIndexes);
         Navigator.pop(context);
