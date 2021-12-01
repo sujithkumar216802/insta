@@ -17,13 +17,13 @@ import 'package:insta_downloader/utils/reponse_helper.dart';
 import 'package:insta_downloader/utils/web_view.dart';
 
 class Input extends StatelessWidget {
-  final UrlController = TextEditingController();
-  var valuesJsonDict = {};
-  String html;
+  final _UrlController = TextEditingController();
+  String _url;
+  Uri _uri;
   BuildContext _context;
 
   Input({String share}) {
-    if (share != null) UrlController.text = share;
+    if (share != null) _UrlController.text = share;
   }
 
   @override
@@ -38,7 +38,7 @@ class Input extends StatelessWidget {
               margin: EdgeInsets.fromLTRB(10, 20, 10, 20),
               width: MediaQuery.of(context).size.width - 20,
               child: TextField(
-                controller: UrlController,
+                controller: _UrlController,
                 decoration: InputDecoration(
                   hintText: 'Paste URL here',
                   border: OutlineInputBorder(),
@@ -60,7 +60,7 @@ class Input extends StatelessWidget {
               margin: EdgeInsets.all(10),
               child: ElevatedButton(
                   onPressed: () {
-                    download(context);
+                    download();
                   },
                   child: Text("Download")),
               width: MediaQuery.of(context).size.width / 2 - 20,
@@ -71,43 +71,37 @@ class Input extends StatelessWidget {
     );
   }
 
-  Future<void> download(BuildContext context) async {
-    String url = UrlController.text;
-
-
-    //TODO find a better way
-    if(!url.startsWith('https://www.'))
-      url = url.replaceFirst('https://', 'https://www.');
-
-    if(url.contains('?')) {
-      int index = url.indexOf('?');
-      url = url.substring(0, index);
-      if(url[url.length - 1]!='/')
-        url = url + '/';
+  Future<void> download() async {
+    try {
+      _uri = Uri.parse(_UrlController.text);
+    } catch (e) {
+      showDialogueWithText(_context, 'Invalid Link', 'The link is not valid');
+      return;
     }
 
-    if (url == "https://www.instagram.com/reel/" ||
-        url == "https://www.instagram.com/p/" ||
-        url == "https://www.instagram.com/tv/" ||
-        url == "https://www.instagram.com/stories/" ||
-        (!url.startsWith("https://www.instagram.com/tv/") &&
-            !url.startsWith("https://www.instagram.com/p/") &&
-            !url.startsWith("https://www.instagram.com/reel/") &&
-            !url.startsWith("https://www.instagram.com/stories/"))) {
-      //show dialog
-      showDialogueWithText(context, 'Invalid Link', 'The link is not valid');
+    if (_uri.pathSegments.contains('stories') ||
+        _uri.pathSegments.contains('s') ||
+        _uri.pathSegments.contains('p') ||
+        _uri.pathSegments.contains('tv') ||
+        _uri.pathSegments.contains('reel')) {
+      _url = 'https://www.instagram.com' + _uri.path;
+      if (_uri.queryParameters.containsKey('story_media_id') &&
+          _uri.pathSegments.contains('s'))
+        _url += '?story_media_id=' + _uri.queryParameters['story_media_id'];
+    } else {
+      showDialogueWithText(_context, 'Invalid Link', 'The link is not valid');
       return;
     }
 
     if (await getSdk() < 29 && !(await getDownloadPermission())) {
-      responseHelper(context, Status.PERMISSION_NOT_GRANTED);
+      responseHelper(_context, Status.PERMISSION_NOT_GRANTED);
       return;
     }
 
     //check duplicates
     List<String> urlList = await DatabaseHelper.instance.getUrls();
     for (String x in urlList) {
-      if (x.contains(url)) {
+      if (x.contains(_url)) {
         //getting the history
         History history = await DatabaseHelper.instance.getHistory(x);
 
@@ -119,14 +113,14 @@ class Input extends StatelessWidget {
 
         if (postAvailability == PostAvailability.ALL) {
           //show dialog
-          showDialogueWithText(context, 'Already Downloaded', 'Check History');
+          showDialogueWithText(_context, 'Already Downloaded', 'Check History');
           return;
         } else {
-          showDownloadingDialogue(context);
+          showDownloadingDialogue(_context);
           var status = await updateHistory(
               notAvailableFilesInfo, history.url, notAvailableIndexes);
-          Navigator.pop(context);
-          responseHelper(context, status);
+          Navigator.pop(_context);
+          responseHelper(_context, status);
 
           //update history in db
           //fire and forget
@@ -135,32 +129,33 @@ class Input extends StatelessWidget {
         }
       }
     }
-    showDownloadingDialogue(context);
+    showDownloadingDialogue(_context);
 
     var status;
-    if (url.startsWith("https://www.instagram.com/stories/") || url.startsWith("https://instagram.com/stories/")) {
+    if (_uri.pathSegments.contains('stories') ||
+        _uri.pathSegments.contains('s')) {
       var temp = await WebViewHelper.isLoggedIn();
       if (temp is Status) {
-        Navigator.pop(context);
-        responseHelper(context, temp);
+        Navigator.pop(_context);
+        responseHelper(_context, temp);
         return;
       }
       if (temp) {
-        status = await getDetailsStory(url);
-        Navigator.pop(context);
-        responseHelper(context, status);
+        status = await getDetailsStory(_url);
+        Navigator.pop(_context);
+        responseHelper(_context, status);
       } else {
-        Navigator.pop(context);
+        Navigator.pop(_context);
         login();
       }
     } else {
-      status = await getDetailsPost(url);
+      status = await getDetailsPost(_url);
       if (status == Status.INACCESSIBLE) {
-        Navigator.pop(context);
+        Navigator.pop(_context);
         login();
       } else {
-        Navigator.pop(context);
-        responseHelper(context, status);
+        Navigator.pop(_context);
+        responseHelper(_context, status);
       }
     }
   }
@@ -187,15 +182,19 @@ class Input extends StatelessWidget {
 
   void paste() {
     Clipboard.getData(Clipboard.kTextPlain)
-        .then((value) => UrlController.text = value.text);
+        .then((value) => _UrlController.text = value.text);
   }
 
   loginCompleted() async {
+    Navigator.pop(_context);
+    showDownloadingDialogue(_context);
+
     var status;
-    if (UrlController.text.startsWith("https://www.instagram.com/stories/"))
-      status = await getDetailsStory(UrlController.text);
+    if (_uri.pathSegments.contains('stories') ||
+        _uri.pathSegments.contains('s'))
+      status = await getDetailsStory(_UrlController.text);
     else
-      status = await getDetailsPost(UrlController.text);
+      status = await getDetailsPost(_UrlController.text);
 
     Navigator.pop(_context);
     responseHelper(_context, status);

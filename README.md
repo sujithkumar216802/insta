@@ -11,7 +11,7 @@ A flutter application that lets you download [Instagram](https://wwww.instagram.
 - [x] Download Reels
 - [x] Download Private posts (user login required... duh)
 - [x] Download Stories
-- [ ] Download Highlights
+- [x] Download Highlights
 - [ ] Batch download
 
 

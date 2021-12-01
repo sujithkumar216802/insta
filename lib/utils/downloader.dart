@@ -22,38 +22,44 @@ getDetailsPost(String url, {bool update = false}) async {
     await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100))
         .then((_) => !WebViewHelper.completed));
 
-  //TODO find a better way
   String html = await WebViewHelper.controller.getHtml();
-  int slash = url.indexOf('/', 'https://www.instagram.com/'.length) + 1;
-  slash = url.indexOf('/', slash) + 1;
-  String p = url.substring('https://www.instagram.com'.length, slash);
 
-  var valuesDict = extract(html, p: p);
+  var valuesDict = extract(html, p: Uri.parse(url).path);
   if (valuesDict is Status) return valuesDict;
   return await downloadAndSaveFiles(valuesDict, url, update: update);
 }
 
 getDetailsStory(String url, {bool update = false}) async {
-  WebViewHelper.completed = false;
-  await WebViewHelper.controller
-      .loadUrl(urlRequest: URLRequest(url: Uri.parse(url)));
-  if (!WebViewHelper.completed)
-    await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100))
-        .then((_) => !WebViewHelper.completed));
+  String html, toLoad;
+  var storyId;
+  String linkStoryId = "";
+  Uri uri = Uri.parse(url);
+  bool fullHighlights = uri.pathSegments.contains('highlights');
+  bool highlights = fullHighlights || uri.pathSegments.contains('s');
 
-  String html = await WebViewHelper.controller.evaluateJavascript(
-      source: "window.document.getElementsByTagName('html')[0].outerHTML;");
+  //for stories and posts with single highlight(/s/)
+  if (!fullHighlights) {
+    WebViewHelper.completed = false;
+    await WebViewHelper.controller
+        .loadUrl(urlRequest: URLRequest(url: Uri.parse(url)));
+    if (!WebViewHelper.completed)
+      await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100))
+          .then((_) => !WebViewHelper.completed));
 
-  var storyId = extract(html, storyId: true);
-  if(storyId is Status) return storyId;
+    html = await WebViewHelper.controller.evaluateJavascript(
+        source: "window.document.getElementsByTagName('html')[0].outerHTML;");
 
-  String toLoad;
-  if (url.contains('highlights'))
-    toLoad =
-        'https://www.instagram.com/graphql/query/?query_hash=52a36e788a02a3c612742ed5146f1676&variables={"reel_ids":[],"stories_video_dash_manifest":false,"location_ids":[],"story_viewer_cursor":"","precomposed_overlay":false,"highlight_reel_ids":["$storyId"],"tag_names":[],"show_story_viewer_list":false}';
-  else
-    toLoad =
-        'https://www.instagram.com/graphql/query/?query_hash=52a36e788a02a3c612742ed5146f1676&variables={"reel_ids":["$storyId"],"stories_video_dash_manifest":false,"location_ids":[],"story_viewer_cursor":"","precomposed_overlay":false,"highlight_reel_ids":[],"tag_names":[],"show_story_viewer_list":false}';
+    storyId = highlights
+        ? extract(html, highlightsId: true)
+        : extract(html, storyId: true);
+    if (storyId is Status) return storyId;
+  } else {
+    storyId = uri.pathSegments[2];
+  }
+
+  toLoad = highlights
+      ? 'https://www.instagram.com/graphql/query/?query_hash=52a36e788a02a3c612742ed5146f1676&variables={"reel_ids":[],"stories_video_dash_manifest":false,"location_ids":[],"story_viewer_cursor":"","precomposed_overlay":false,"highlight_reel_ids":["$storyId"],"tag_names":[],"show_story_viewer_list":false}'
+      : 'https://www.instagram.com/graphql/query/?query_hash=52a36e788a02a3c612742ed5146f1676&variables={"reel_ids":["$storyId"],"stories_video_dash_manifest":false,"location_ids":[],"story_viewer_cursor":"","precomposed_overlay":false,"highlight_reel_ids":[],"tag_names":[],"show_story_viewer_list":false}';
 
   WebViewHelper.completed = false;
   await WebViewHelper.controller
@@ -65,13 +71,14 @@ getDetailsStory(String url, {bool update = false}) async {
   html = await WebViewHelper.controller.evaluateJavascript(
       source: "window.document.getElementsByTagName('html')[0].outerHTML;");
 
-  //TODO find a better way
-  int slash = "https://www.instagram.com/stories/".length;
-  slash = url.indexOf('/', slash) + 1;
-  int slash2 = url.indexOf('/', slash);
-  String linkStoryId = url.substring(slash, slash2);
+  linkStoryId = uri.queryParameters['story_media_id'] ?? "";
+  linkStoryId = linkStoryId != ""
+      ? linkStoryId.substring(0, linkStoryId.indexOf('_'))
+      : "";
 
-  var valuesDict = extract(html, storyDetails: true, linkStoryId: linkStoryId);
+  var valuesDict = highlights
+      ? extract(html, storyDetails: true, linkStoryId: linkStoryId)
+      : extract(html, storyDetails: true, linkStoryId: uri.pathSegments[2]);
   if (valuesDict is Status) return valuesDict;
 
   return await downloadAndSaveFiles(valuesDict, url, update: update);
@@ -105,7 +112,8 @@ updateHistory(List<FileInfo> list, String url, List<int> listIndexes) async {
 
   if (expired) {
     var status;
-    if (url.startsWith("https://www.instagram.com/stories/")) {
+    if (Uri.parse(url).pathSegments.contains('stories') ||
+        Uri.parse(url).pathSegments.contains('s')) {
       var temp = await WebViewHelper.isLoggedIn();
       if (temp is Status) return temp;
 
@@ -117,15 +125,15 @@ updateHistory(List<FileInfo> list, String url, List<int> listIndexes) async {
       status = await getDetailsPost(url, update: true);
     }
 
-    if (status == Status.SUCCESS) {
+    if (status is Status)
+      return status;
+    else {
       for (int i = 0; i < listIndexes.length; i++) {
         list[i].url = status[listIndexes[i]].url;
         list[i].uri = status[listIndexes[i]].uri;
         list[i].name = status[listIndexes[i]].name;
       }
     }
-
-    return status;
   }
 
   return Status.SUCCESS;
@@ -155,9 +163,7 @@ downloadAndSaveFiles(var values, String postUrl, {bool update = false}) async {
     }
   }
 
-  if (update) {
-    return values['links'];
-  }
+  if (update) return values['links'];
 
   //thumbnail
   var thumbnail = await http.get(Uri.parse(values["thumbnail_url"]));

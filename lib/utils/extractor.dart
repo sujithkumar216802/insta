@@ -9,13 +9,14 @@ const sharedDataHeader = 'window._sharedData = ';
 
 const sharedDataFooter = ';</script>';
 
-const jsonHeader = '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">';
+const jsonHeader =
+    '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">';
 
 const jsonFooter = '</pre></body></html>';
 
-//extractor
 extract(String html,
     {bool storyId = false,
+    bool highlightsId = false,
     p = "",
     bool storyDetails = false,
     String linkStoryId = "",
@@ -58,8 +59,7 @@ extract(String html,
 
           if (jsonFooterIndex == jsonFooter.length) {
             linkEndIndex = i - jsonFooter.length + 1;
-            dataDict =
-                jsonDecode(html.substring(linkStartIndex, linkEndIndex));
+            dataDict = jsonDecode(html.substring(linkStartIndex, linkEndIndex));
             break;
           }
         }
@@ -70,16 +70,17 @@ extract(String html,
       accountPhotoUrl = dataDict['owner']['profile_pic_url'];
       dataDict = dataDict['items'];
       for (var item in dataDict) {
-        if (item['id'] == linkStoryId) {
+        if (linkStoryId == "" || item['id'] == linkStoryId) {
           thumbnailUrl = item['display_url'];
-          ratio =
-              max(1, item['dimensions']['width'] / item['dimensions']['height']);
+          ratio = max(
+              1, item['dimensions']['width'] / item['dimensions']['height']);
           if (item['is_video'])
-            links
-                .add(FileInfo(FileType.VIDEO, item['video_resources'][0]['src']));
+            links.add(FileInfo(
+                FileType.VIDEO,
+                item['video_resources'][item['video_resources'].length - 1]
+                    ['src']));
           else
             links.add(FileInfo(FileType.IMAGE, thumbnailUrl));
-          break;
         }
       }
     } else {
@@ -177,20 +178,23 @@ extract(String html,
           }
         }
 
-        if(sharedDataDone && !loopCheck) {
-
+        if (sharedDataDone && !loopCheck) {
           //check if the post is accessible or not
-          if(!sharedDataDict['entry_data'].containsKey('PostPage') && !storyId) {
+          if (!sharedDataDict['entry_data'].containsKey('PostPage') &&
+              !storyId &&
+              !highlightsId) {
             login = sharedDataDict['config']['viewer'] != null;
-            if(checkLogin) return login;
-            if(login) {
+            if (checkLogin) return login;
+            if (login) {
               return Status.INACCESSIBLE_LOGGED_IN;
             }
             return Status.INACCESSIBLE;
           }
 
           //check if additional data needs to be found
-          if (!sharedDataDict['config'].containsKey('viewer') || storyId) break;
+          if (!sharedDataDict['config'].containsKey('viewer') ||
+              storyId ||
+              highlightsId) break;
 
           loopCheck = true;
         }
@@ -205,9 +209,13 @@ extract(String html,
       if (storyId)
         return sharedDataDict['entry_data']['StoriesPage'][0]['user']['id'];
 
+      if (highlightsId)
+        return sharedDataDict['entry_data']['StoriesPage'][0]['highlight']
+            ['id'];
+
       if (!login)
         additionalDataDict = sharedDataDict['entry_data']['PostPage'][0]
-        ['graphql']['shortcode_media'];
+            ['graphql']['shortcode_media'];
       else
         additionalDataDict = additionalDataDict['graphql']['shortcode_media'];
 
@@ -220,21 +228,22 @@ extract(String html,
               additionalDataDict['dimensions']['height']);
       if (additionalDataDict['edge_media_to_caption']['edges'].length > 0)
         descriptionString = additionalDataDict['edge_media_to_caption']['edges']
-        [0]['node']['text'];
+            [0]['node']['text'];
 
       if (additionalDataDict['is_video'])
         links.add(FileInfo(FileType.VIDEO, additionalDataDict['video_url']));
       else if (additionalDataDict['edge_sidecar_to_children'] == null)
         links.add(FileInfo(FileType.IMAGE, additionalDataDict['display_url']));
       else {
-        var valuesArray = additionalDataDict['edge_sidecar_to_children']['edges'];
+        var valuesArray =
+            additionalDataDict['edge_sidecar_to_children']['edges'];
         for (int i = 0; i < valuesArray.length; i++) {
           if (valuesArray[i]['node']['is_video'])
             links.add(
                 FileInfo(FileType.VIDEO, valuesArray[i]['node']['video_url']));
           else
-            links.add(
-                FileInfo(FileType.IMAGE, valuesArray[i]['node']['display_url']));
+            links.add(FileInfo(
+                FileType.IMAGE, valuesArray[i]['node']['display_url']));
         }
       }
     }
@@ -246,8 +255,7 @@ extract(String html,
       "account_pic_url": accountPhotoUrl,
       'ratio': ratio
     };
-  }
-  catch(e) {
+  } catch (e) {
     return Status.FAILURE;
   }
 }
