@@ -1,10 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_downloader/enums/status_enum.dart';
+import 'package:insta_downloader/utils/method_channel.dart';
+import 'package:insta_downloader/utils/page_routes.dart';
+import 'package:insta_downloader/utils/permission.dart';
+import 'package:insta_downloader/utils/reponse_helper.dart';
 
 class MyDrawer extends StatelessWidget {
-  final onChange;
-
-  const MyDrawer({Key key, this.onChange}) : super(key: key);
+  const MyDrawer({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,15 +29,17 @@ class MyDrawer extends StatelessWidget {
           ListTile(
             title: Text('Home'),
             onTap: () {
-              onChange(1);
-              Navigator.pop(context);
+              Navigator.pushReplacementNamed(context, PageRoutes.input);
+              // Navigator.pop(context);
             },
           ),
           ListTile(
               title: Text('History'),
-              onTap: () {
-                onChange(2);
-                Navigator.pop(context);
+              onTap: () /*async*/ {
+                // if (await getSdk() < 29 && !(await getDownloadPermission()))
+                //   responseHelper(context, Status.PERMISSION_NOT_GRANTED);
+                Navigator.pushReplacementNamed(context, PageRoutes.history);
+                //Navigator.pop(context);
               }),
           // ListTile(
           //     title: Text('Settings'),

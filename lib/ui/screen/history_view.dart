@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:insta_downloader/enums/post_availability_enum.dart';
 import 'package:insta_downloader/enums/status_enum.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
+import 'package:insta_downloader/ui/widget/drawer.dart';
 import 'package:insta_downloader/ui/widget/history_template.dart';
 import 'package:insta_downloader/utils/dialogue_helper.dart';
 import 'package:insta_downloader/utils/downloader.dart';
@@ -18,6 +19,8 @@ import '../../utils/database_helper.dart';
 import '../../utils/file_checker.dart';
 
 class HistoryView extends StatefulWidget {
+  static const String routeName = '/history';
+
   const HistoryView({Key key}) : super(key: key);
 
   @override
@@ -45,31 +48,39 @@ class _HistoryViewState extends State<HistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    return list.length == 0
-        ? Container(
-            child: Center(
-              child: (initialLoading)
-                  ? CircularProgressIndicator()
-                  : Text(
-                      "Nothing to show here",
-                      style: TextStyle(fontSize: 32),
-                    ),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color.fromARGB(140, 255, 255, 255),
+        title: Text("InstaSave", style: TextStyle(color: Colors.black)),
+        elevation: 10,
+      ),
+      body: list.length == 0
+          ? Container(
+              child: Center(
+                child: (initialLoading)
+                    ? CircularProgressIndicator()
+                    : Text(
+                        "Nothing to show here",
+                        style: TextStyle(fontSize: 32),
+                      ),
+              ),
+            )
+          : Container(
+              width: MediaQuery.of(context).size.width,
+              child: ListView.builder(
+                  cacheExtent: (MediaQuery.of(context).size.width * 6 / 5) *
+                      (list.length + 5),
+                  itemCount: list.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return HistoryTemplate(
+                        key: ValueKey(list[index].url),
+                        history: list[index],
+                        index: index,
+                        function: popUpMenuFunction);
+                  }),
             ),
-          )
-        : Container(
-            width: MediaQuery.of(context).size.width,
-            child: ListView.builder(
-                cacheExtent: (MediaQuery.of(context).size.width * 6 / 5) *
-                    (list.length + 5),
-                itemCount: list.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return HistoryTemplate(
-                      key: ValueKey(list[index].url),
-                      history: list[index],
-                      index: index,
-                      function: popUpMenuFunction);
-                }),
-          );
+      drawer: MyDrawer(),
+    );
     // return length == 0
     //     ? Container(
     //         child: Center(

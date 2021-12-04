@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:insta_downloader/utils/page_routes.dart';
 import 'package:insta_downloader/utils/web_view.dart';
 
 class SplashScreen extends StatefulWidget {
-  final onChange;
 
-  const SplashScreen({Key key, @required this.onChange}) : super(key: key);
+  const SplashScreen({Key key}) : super(key: key);
 
   @override
-  _SplashScreenState createState() => _SplashScreenState(onChange);
+  _SplashScreenState createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  _SplashScreenState(this.onChange) {
+  _SplashScreenState() {
     WebViewHelper.webView.run();
     webViewStarted();
   }
-
-  final onChange;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +30,6 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!WebViewHelper.completed)
       await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100))
           .then((_) => !WebViewHelper.completed));
-    onChange(1);
+    Navigator.pushReplacementNamed(context, PageRoutes.input);
   }
 }
