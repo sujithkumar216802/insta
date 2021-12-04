@@ -33,22 +33,26 @@ class _CurrentPageState extends State<CurrentPage> {
     // For sharing or opening urls/text coming from outside the app while the app is in the memory
     _intentDataStreamSubscription =
         ReceiveSharingIntent.getTextStream().listen((String value) {
-      setState(() {
-        share = true;
-        _sharedText = value;
-        change(0);
-      });
+      if (value != null) {
+        setState(() {
+          share = true;
+          _sharedText = value;
+          change(0);
+        });
+      }
     }, onError: (err) {
       print("getLinkStream error: $err");
     });
 
     // For sharing or opening urls/text coming from outside the app while the app is closed
     ReceiveSharingIntent.getInitialText().then((String value) {
-      setState(() {
-        share = true;
-        _sharedText = value;
-        change(0);
-      });
+      if (value != null) {
+        setState(() {
+          share = true;
+          _sharedText = value;
+          change(0);
+        });
+      }
     });
   }
 

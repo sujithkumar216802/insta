@@ -13,6 +13,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   _SplashScreenState(this.onChange) {
     WebViewHelper.webView.run();
+    webViewStarted();
   }
 
   final onChange;
@@ -29,7 +30,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void webViewStarted() async {
     if (!WebViewHelper.completed)
-      await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100)).then((_) => !WebViewHelper.completed));
+      await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100))
+          .then((_) => !WebViewHelper.completed));
     onChange(1);
   }
 }
