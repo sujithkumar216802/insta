@@ -5,6 +5,7 @@ import 'extractor.dart';
 class WebViewHelper {
 
   static bool completed = false;
+  static InAppWebViewController controller;
 
   static HeadlessInAppWebView webView = HeadlessInAppWebView(
     initialUrlRequest: URLRequest(url: Uri.parse("https://instagram.com/")),
@@ -16,19 +17,23 @@ class WebViewHelper {
     },
   );
 
-  static InAppWebViewController controller;
+  // page doesn't load fully before loadUrl nds
+  static loadUrl(String url) async {
+    completed = false;
+    await controller.loadUrl(urlRequest: URLRequest(url: Uri.parse(url)),);
+    if (!completed)
+      await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100)).then((_) => !completed));
+    return;
+  }
+
+
+  static isLoggedIn() async {
+    loadUrl("https://www.instagram.com/");
+    return extract(await controller.getHtml(), checkLogin: true);
+  }
 
   static dispose() {
     webView.dispose();
   }
 
-  static isLoggedIn() async {
-    //preparation to check if the user is logged in
-    completed = false;
-    await controller.loadUrl(urlRequest: URLRequest(url: Uri.parse("https://www.instagram.com/")),);
-    if (!completed)
-      await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100)).then((_) => !completed));
-
-    return extract(await controller.getHtml(), checkLogin: true);
-  }
 }

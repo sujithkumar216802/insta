@@ -1,4 +1,3 @@
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
 import 'package:insta_downloader/enums/file_type_enum.dart';
 import 'package:insta_downloader/enums/status_enum.dart';
@@ -15,12 +14,7 @@ import '../models/history_model.dart';
 const uuid = Uuid();
 
 getDetailsPost(String url, {bool update = false}) async {
-  WebViewHelper.completed = false;
-  await WebViewHelper.controller
-      .loadUrl(urlRequest: URLRequest(url: Uri.parse(url)));
-  if (!WebViewHelper.completed)
-    await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100))
-        .then((_) => !WebViewHelper.completed));
+  await WebViewHelper.loadUrl(url);
 
   String html = await WebViewHelper.controller.getHtml();
 
@@ -39,12 +33,7 @@ getDetailsStory(String url, {bool update = false}) async {
 
   //for stories and posts with single highlight(/s/)
   if (!fullHighlights) {
-    WebViewHelper.completed = false;
-    await WebViewHelper.controller
-        .loadUrl(urlRequest: URLRequest(url: Uri.parse(url)));
-    if (!WebViewHelper.completed)
-      await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100))
-          .then((_) => !WebViewHelper.completed));
+    await WebViewHelper.loadUrl(url);
 
     html = await WebViewHelper.controller.evaluateJavascript(
         source: "window.document.getElementsByTagName('html')[0].outerHTML;");
@@ -61,12 +50,7 @@ getDetailsStory(String url, {bool update = false}) async {
       ? 'https://www.instagram.com/graphql/query/?query_hash=52a36e788a02a3c612742ed5146f1676&variables={"reel_ids":[],"stories_video_dash_manifest":false,"location_ids":[],"story_viewer_cursor":"","precomposed_overlay":false,"highlight_reel_ids":["$storyId"],"tag_names":[],"show_story_viewer_list":false}'
       : 'https://www.instagram.com/graphql/query/?query_hash=52a36e788a02a3c612742ed5146f1676&variables={"reel_ids":["$storyId"],"stories_video_dash_manifest":false,"location_ids":[],"story_viewer_cursor":"","precomposed_overlay":false,"highlight_reel_ids":[],"tag_names":[],"show_story_viewer_list":false}';
 
-  WebViewHelper.completed = false;
-  await WebViewHelper.controller
-      .loadUrl(urlRequest: URLRequest(url: Uri.parse(toLoad)));
-  if (!WebViewHelper.completed)
-    await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100))
-        .then((_) => !WebViewHelper.completed));
+  await WebViewHelper.loadUrl(toLoad);
 
   html = await WebViewHelper.controller.evaluateJavascript(
       source: "window.document.getElementsByTagName('html')[0].outerHTML;");
