@@ -1,7 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:insta_downloader/enums/status_enum.dart';
 import 'package:insta_downloader/utils/dialogue_helper.dart';
 
-responseHelper(context, status) {
+responseHelper(context, status, {callback}) {
   switch (status) {
     case Status.SUCCESS:
       showDialogueWithText(
@@ -17,9 +18,19 @@ responseHelper(context, status) {
     case Status.NOT_FOUND:
       showDialogueWithText(context, 'Not found', 'Post does not exist');
       break;
-    // case Status.INACCESSIBLE:
-    //   showDialogueWithText(
-    //       context, 'INACCESSIBLE', 'Login to access the post');
+    case Status.INACCESSIBLE:
+      showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+                title: Text('LOGIN REQUIRED'),
+                content: Text('Login to access the post'),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('Cancel')),
+                  TextButton(onPressed: callback, child: Text('Login')),
+                ],
+              ));
       break;
     case Status.PERMISSION_NOT_GRANTED:
       showDialogueWithText(

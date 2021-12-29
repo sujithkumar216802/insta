@@ -72,7 +72,12 @@ class _HistoryViewState extends State<HistoryView> {
                         width: MediaQuery.of(context).size.width,
                         child: NotificationListener<ScrollNotification>(
                           onNotification: (ScrollNotification info) {
-                            if ((_maxScrollExtent != info.metrics.maxScrollExtent) && ((info.metrics.pixels + MediaQuery.of(context).size.height) >= info.metrics.maxScrollExtent) && (_list.length != _length)) {
+                            if ((_maxScrollExtent !=
+                                    info.metrics.maxScrollExtent) &&
+                                ((info.metrics.pixels +
+                                        MediaQuery.of(context).size.height) >=
+                                    info.metrics.maxScrollExtent) &&
+                                (_list.length != _length)) {
                               _maxScrollExtent = info.metrics.maxScrollExtent;
                               _length = _length + _pageSize > _list.length
                                   ? _list.length
@@ -153,7 +158,9 @@ class _HistoryViewState extends State<HistoryView> {
         var status = await updateHistory(
             notAvailableFilesInfo, _list[index].url, notAvailableIndexes);
         Navigator.pop(context);
-        responseHelper(context, status);
+        responseHelper(context, status, callback: () {
+          popUpMenuFunction(value, index);
+        });
 
         //fire and forget
         DatabaseHelper.instance.update(_list[index]);

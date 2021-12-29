@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:insta_downloader/enums/status_enum.dart';
 
 import 'extractor.dart';
 
 class WebViewHelper {
-
   static bool completed = false;
   static InAppWebViewController controller;
 
@@ -12,28 +13,48 @@ class WebViewHelper {
     onWebViewCreated: (_controller) {
       controller = _controller;
     },
-    onLoadStop: (InAppWebViewController controller,Uri url) {
+    onLoadStop: (InAppWebViewController controller, Uri url) {
       completed = true;
     },
   );
 
-  // page doesn't load fully before loadUrl nds
+  // page doesn't load fully before inbuilt loadUrl returns
   static loadUrl(String url) async {
     completed = false;
-    await controller.loadUrl(urlRequest: URLRequest(url: Uri.parse(url)),);
+    await controller.loadUrl(
+      urlRequest: URLRequest(url: Uri.parse(url)),
+    );
     if (!completed)
-      await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100)).then((_) => !completed));
+      await Future.doWhile(() =>
+          Future.delayed(Duration(milliseconds: 100)).then((_) => !completed));
     return;
   }
-
 
   static isLoggedIn() async {
     loadUrl("https://www.instagram.com/");
     return extract(await controller.getHtml(), checkLogin: true);
   }
 
+  static userLogin(context, callback) async {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (_) => AlertDialog(
+              content: InAppWebView(
+                initialUrlRequest:
+                    URLRequest(url: Uri.parse("https://www.instagram.com/")),
+                onLoadStop: (controller, url) async {
+                  var value =
+                      extract(await controller.getHtml(), checkLogin: true);
+                  if (value is! Status && value) {
+                    callback();
+                  }
+                },
+              ),
+            ));
+  }
+
   static dispose() {
     webView.dispose();
   }
-
 }

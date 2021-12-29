@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:insta_downloader/enums/post_availability_enum.dart';
 import 'package:insta_downloader/enums/status_enum.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
@@ -9,7 +8,6 @@ import 'package:insta_downloader/ui/widget/drawer.dart';
 import 'package:insta_downloader/utils/database_helper.dart';
 import 'package:insta_downloader/utils/dialogue_helper.dart';
 import 'package:insta_downloader/utils/downloader.dart';
-import 'package:insta_downloader/utils/extractor.dart';
 import 'package:insta_downloader/utils/file_checker.dart';
 import 'package:insta_downloader/utils/method_channel.dart';
 import 'package:insta_downloader/utils/permission.dart';
@@ -151,49 +149,24 @@ class Input extends StatelessWidget {
     if (_uri.pathSegments.contains('stories') ||
         _uri.pathSegments.contains('s')) {
       var temp = await WebViewHelper.isLoggedIn();
-      if (temp is Status) {
-        Navigator.pop(_context);
-        responseHelper(_context, temp);
-        return;
-      }
-      if (temp) {
+
+      if (temp is! Status && !temp)
+        status = Status.INACCESSIBLE;
+      else if (temp is Status)
+        status = temp;
+      else
         status = await getDetailsStory(_url);
-        Navigator.pop(_context);
-        responseHelper(_context, status);
-      } else {
-        Navigator.pop(_context);
-        login();
-      }
     } else {
       status = await getDetailsPost(_url);
-      if (status == Status.INACCESSIBLE) {
-        Navigator.pop(_context);
-        login();
-      } else {
-        Navigator.pop(_context);
-        responseHelper(_context, status);
-      }
+      //if (status == Status.INACCESSIBLE) login = true;
     }
-  }
 
-  login() async {
-    //TODO ask the user
-    showDialog(
-        barrierDismissible: false,
-        context: _context,
-        builder: (_) => AlertDialog(
-              content: InAppWebView(
-                initialUrlRequest:
-                    URLRequest(url: Uri.parse("https://www.instagram.com/")),
-                onLoadStop: (controller, url) async {
-                  var value =
-                      extract(await controller.getHtml(), checkLogin: true);
-                  if (!(value is Status) && value) {
-                    loginCompleted();
-                  }
-                },
-              ),
-            ));
+    Navigator.pop(_context);
+
+    responseHelper(_context, status, callback: () {
+      Navigator.pop(_context);
+      WebViewHelper.userLogin(_context, loginCompleted);
+    });
   }
 
   void paste() {
