@@ -18,23 +18,18 @@ class VideoPlayerWidget extends StatefulWidget {
   final int index;
 
   @override
-  _VideoPlayerWidgetState createState() =>
-      _VideoPlayerWidgetState(video, function, index);
+  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
 }
 
 class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
-  final File video;
-  final function;
-  final int index;
-
   VideoPlayerController _controller;
 
-  _VideoPlayerWidgetState(this.video, this.function, this.index);
+  _VideoPlayerWidgetState();
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.file(video)
+    _controller = VideoPlayerController.file(widget.video)
       ..initialize().then((value) {
         _controller.setLooping(true);
         setState(() {});
@@ -69,10 +64,12 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
               size: 60,
               color: Colors.white,
             )),
-        Container(
+        Align(
           alignment: Alignment.topRight,
           child: TripleDot(
-              callbackFunction: function, index: index, isSingleFile: true),
+              callbackFunction: widget.function,
+              index: widget.index,
+              isSingleFile: true),
         )
       ],
     );

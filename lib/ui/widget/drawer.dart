@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_downloader/enums/page_routes.dart';
 
 class MyDrawer extends StatelessWidget {
-  final onChange;
-
-  const MyDrawer({Key key, this.onChange}) : super(key: key);
+  const MyDrawer({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,21 +25,17 @@ class MyDrawer extends StatelessWidget {
           ListTile(
             title: Text('Home'),
             onTap: () {
-              onChange(1);
-              Navigator.pop(context);
+              Navigator.pushReplacementNamed(context, PageRoutes.input);
             },
           ),
           ListTile(
               title: Text('History'),
               onTap: () {
-                onChange(2);
-                Navigator.pop(context);
+                Navigator.pushReplacementNamed(context, PageRoutes.history);
               }),
           // ListTile(
           //     title: Text('Settings'),
           //     onTap: () {
-          //       onChange(3);
-          //       Navigator.pop(context);
           //     }),
         ],
       ),

@@ -30,18 +30,14 @@ class HistoryTemplate extends StatefulWidget {
   final function;
 
   @override
-  _HistoryTemplateState createState() =>
-      _HistoryTemplateState(history, index, function);
+  _HistoryTemplateState createState() => _HistoryTemplateState();
 }
 
 class _HistoryTemplateState extends State<HistoryTemplate> {
-  _HistoryTemplateState(this.history, this.index, this.function) {
+  _HistoryTemplateState() {
     init();
   }
 
-  final History history;
-  final int index;
-  final function;
   PostAvailability postAvailability;
   List<int> indexes;
   List<Widget> showWidgets = [];
@@ -59,12 +55,11 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
   }
 
   void init() async {
-    var value = await checkAllFiles(history);
+    var value = await checkAllFiles(widget.history);
     postAvailability = value['post_availability'];
     indexes = value['available_indexes'];
     filesLoaded = false;
     setState(() {});
-    //show();
   }
 
   @override
@@ -72,153 +67,140 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
     if (showFiles && !filesLoaded) show();
 
     if (postAvailability != null)
-      return ListTile(
-        title: Container(
-          margin: EdgeInsets.fromLTRB(
-              0, 0, 0, MediaQuery.of(context).size.width / 25),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+      return Container(
+        clipBehavior: Clip.hardEdge,
+        decoration: BoxDecoration(
+            border: Border.all(color: Theme.of(context).primaryColor),
+            borderRadius: BorderRadius.all(
+                Radius.circular(MediaQuery.of(context).size.width / 25))),
+        child: Column(
+          children: [
+            ListTile(
+              leading: Image.memory(widget.history.thumbnail),
+              trailing: TripleDot(
+                callbackFunction: widget.function,
+                index: widget.index,
+                postAvailability: postAvailability,
+              ),
+              subtitle: Text(
+                widget.history.description,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+              ),
+              isThreeLine: true,
+              title: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Flexible(
-                      flex: 6,
-                      fit: FlexFit.tight,
-                      child: Image.memory(
-                        history.thumbnail,
-                        width: MediaQuery.of(context).size.width / 5,
-                        height: MediaQuery.of(context).size.width / 5,
-                      )),
-                  Flexible(
-                      flex: 21,
-                      fit: FlexFit.tight,
-                      child: Container(
-                        height: MediaQuery.of(context).size.width / 5,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Flexible(
-                                flex: 2,
-                                child: Container(
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        width: 18,
-                                        height: 18,
-                                        decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            image: DecorationImage(
-                                                fit: BoxFit.fill,
-                                                image: MemoryImage(
-                                                    history.accountPhoto))),
-                                      ),
-                                      Text(' ' + history.tag,
-                                          overflow: TextOverflow.ellipsis)
-                                    ],
-                                  ),
-                                  padding: EdgeInsets.fromLTRB(
-                                      MediaQuery.of(context).size.width / 50,
-                                      MediaQuery.of(context).size.width / 50,
-                                      0,
-                                      0),
-                                )),
-                            Flexible(
-                                flex: 4,
-                                child: Container(
-                                  child: Text(history.description,
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: false),
-                                  padding: EdgeInsets.fromLTRB(
-                                      MediaQuery.of(context).size.width / 100,
-                                      MediaQuery.of(context).size.width / 100,
-                                      0,
-                                      MediaQuery.of(context).size.width / 100),
-                                ))
-                          ],
-                        ),
-                      )),
-                  Flexible(
-                    flex: 3,
-                    fit: FlexFit.tight,
-                    child: TripleDot(
-                      callbackFunction: function,
-                      index: index,
-                      postAvailability: postAvailability,
-                    ),
-                  )
+                  Container(
+                    width: 22,
+                    height: 22,
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                            image: MemoryImage(widget.history.accountPhoto))),
+                  ),
+                  Text('  ' + widget.history.tag,
+                      overflow: TextOverflow.ellipsis)
                 ],
               ),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    showFiles = !showFiles;
-                  });
-                },
+            ),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  showFiles = !showFiles;
+                });
+              },
+              child: Container(
+                color: Theme.of(context).colorScheme.secondary,
+                padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     (showFiles)
                         ? Icon(
                             Icons.arrow_drop_up_outlined,
-                            size: 24,
+                            size: 30,
+                            color: Theme.of(context).primaryIconTheme.color,
                           )
                         : Icon(
                             Icons.arrow_drop_down_outlined,
-                            size: 24,
+                            size: 30,
+                            color: Theme.of(context).primaryIconTheme.color,
                           ),
-                    Text("Show Posts")
+                    Text(
+                      "Show Posts",
+                      style: Theme.of(context).primaryTextTheme.bodyText1,
+                    )
                   ],
                 ),
               ),
-              (showFiles && filesLoaded)
-                  ? showWidgets.length > 0
-                      ? AspectRatio(
-                          aspectRatio: history.ratio,
-                          child: PageView(
-                            pageSnapping: true,
-                            children: showWidgets,
-                          ),
-                        )
-                      : Container(
-                          child: Text(
-                            "Nothing to show here",
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )
-                  : (!showFiles)
-                      ? Container()
-                      : Center(child: CircularProgressIndicator(),)
-            ],
-          ),
+            ),
+            (showFiles && filesLoaded)
+                ? showWidgets.length > 0
+                    ? AspectRatio(
+                        aspectRatio: widget.history.ratio,
+                        child: PageView.builder(
+                          pageSnapping: true,
+                          itemBuilder: (context, index) {
+                            return Stack(
+                              children: [
+                                showWidgets[index],
+                                Text(
+                                  '${index + 1}/${showWidgets.length}',
+                                  style: TextStyle(
+                                    backgroundColor: Colors.grey,
+                                  ),
+                                )
+                              ],
+                            );
+                          },
+                          itemCount: showWidgets.length,
+                        ),
+                      )
+                    : Container(
+                        child: Text(
+                          "Nothing to show here",
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      )
+                : (!showFiles)
+                    ? Container()
+                    : Center(
+                        child: CircularProgressIndicator(),
+                      )
+          ],
         ),
+        margin: EdgeInsets.fromLTRB(
+            0, 0, 0, MediaQuery.of(context).size.width / 25),
       );
     else
-      return Container();
+      return Container(
+        child: CircularProgressIndicator(),
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.width / 5,
+      );
   }
 
   show() async {
     showWidgets = [];
 
     //checking before showing just to be safe (overkill)
-    var value = await checkAllFiles(history);
+    var value = await checkAllFiles(widget.history);
     postAvailability = value['post_availability'];
     indexes = value['available_indexes'];
 
     if (await getSdk() < 29 && !(await getDownloadPermission())) {
-      responseHelper(context, Status.PERMISSION_NOT_GRANTED);
+      // responseHelper(context, Status.PERMISSION_NOT_GRANTED);
       return;
     }
-    for (int i in indexes) {
-      Uint8List list = await getFile(history.files[i].uri);
 
-      if (history.files[i].fileType == FileType.VIDEO) {
+    for (int i in indexes) {
+      Uint8List list = await getFile(widget.history.files[i].uri);
+
+      if (widget.history.files[i].fileType == FileType.VIDEO) {
         //caching video file
-        // TODO if none show up
         String path = await getPath();
-        cache.add(path + history.files[i].name);
-        File cacheFile = File(path + history.files[i].name);
+        cache.add(path + widget.history.files[i].name);
+        File cacheFile = File(path + widget.history.files[i].name);
         await cacheFile.writeAsBytes(list);
         showWidgets.add(VideoPlayerWidget(
             video: cacheFile, function: popUpMenuFunction, index: i));
@@ -226,6 +208,7 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
         showWidgets.add(
             ImageWidget(list: list, function: popUpMenuFunction, index: i));
     }
+
     filesLoaded = true;
     if (!disposeBool) setState(() {});
   }
@@ -233,14 +216,14 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
   void popUpMenuFunction(String value, int index) async {
     switch (value) {
       case 'share':
-        shareFiles([history.files[index].uri]);
+        shareFiles([widget.history.files[index].uri]);
         break;
       case 'delete':
         if (await getSdk() < 29 && !(await getDownloadPermission())) {
           responseHelper(context, Status.PERMISSION_NOT_GRANTED);
           return;
         }
-        await deleteFile(history.files[index].uri);
+        await deleteFile(widget.history.files[index].uri);
         init();
         break;
     }

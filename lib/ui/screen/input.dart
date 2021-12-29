@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -6,6 +5,7 @@ import 'package:insta_downloader/enums/post_availability_enum.dart';
 import 'package:insta_downloader/enums/status_enum.dart';
 import 'package:insta_downloader/models/file_info_model.dart';
 import 'package:insta_downloader/models/history_model.dart';
+import 'package:insta_downloader/ui/widget/drawer.dart';
 import 'package:insta_downloader/utils/database_helper.dart';
 import 'package:insta_downloader/utils/dialogue_helper.dart';
 import 'package:insta_downloader/utils/downloader.dart';
@@ -17,6 +17,8 @@ import 'package:insta_downloader/utils/reponse_helper.dart';
 import 'package:insta_downloader/utils/web_view.dart';
 
 class Input extends StatelessWidget {
+  static const String routeName = '/input';
+
   final _UrlController = TextEditingController();
   String _url;
   Uri _uri;
@@ -30,44 +32,58 @@ class Input extends StatelessWidget {
   Widget build(BuildContext context) {
     _context = context;
 
-    return Column(
-      children: [
-        Row(
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).primaryColor,
+        title: Text("InstaSave"),
+        elevation: 10,
+      ),
+      body: SafeArea(
+        child: Column(
           children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(10, 20, 10, 20),
-              width: MediaQuery.of(context).size.width - 20,
-              child: TextField(
-                controller: _UrlController,
-                decoration: InputDecoration(
-                  hintText: 'Paste URL here',
-                  border: OutlineInputBorder(),
+            Row(
+              children: [
+                Container(
+                  margin: EdgeInsets.fromLTRB(10, 20, 10, 20),
+                  width: MediaQuery.of(context).size.width - 20,
+                  child: TextField(
+                    controller: _UrlController,
+                    decoration: InputDecoration(
+                      hintText: 'Paste URL here',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Container(
+                  height: 48,
+                  margin: EdgeInsets.all(10),
+                  child: ElevatedButton(onPressed: paste, child: Text("Paste")),
+                  width: MediaQuery.of(context).size.width / 2 - 20,
                 ),
-              ),
+                Container(
+                  height: 48,
+                  margin: EdgeInsets.all(10),
+                  child: ElevatedButton(
+                      onPressed: () {
+                        download();
+                      },
+                      child: Text("Download")),
+                  width: MediaQuery.of(context).size.width / 2 - 20,
+                )
+              ],
             )
           ],
         ),
-        Row(
-          children: [
-            Container(
-              height: 48,
-              margin: EdgeInsets.all(10),
-              child: ElevatedButton(onPressed: paste, child: Text("Paste")),
-              width: MediaQuery.of(context).size.width / 2 - 20,
-            ),
-            Container(
-              height: 48,
-              margin: EdgeInsets.all(10),
-              child: ElevatedButton(
-                  onPressed: () {
-                    download();
-                  },
-                  child: Text("Download")),
-              width: MediaQuery.of(context).size.width / 2 - 20,
-            )
-          ],
-        )
-      ],
+        bottom: true,
+        top: true,
+        left: true,
+        right: true,
+      ),
+      drawer: MyDrawer(),
     );
   }
 

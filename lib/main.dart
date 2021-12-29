@@ -1,24 +1,72 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 import 'dart:io';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
-import 'ui/current_page.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:insta_downloader/ui/screen/history_view.dart';
+import 'package:insta_downloader/ui/screen/input.dart';
+import 'package:insta_downloader/ui/screen/splash_screen.dart';
+import 'package:insta_downloader/enums/page_routes.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (Platform.isAndroid) {
+  if (Platform.isAndroid)
     await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
-  }
 
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  const MyApp({Key key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  String _sharedText = "";
+  StreamSubscription _intentDataStreamSubscription;
+  bool _share = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // For sharing or opening urls/text coming from outside the app while the app is in the memory
+    _intentDataStreamSubscription =
+        ReceiveSharingIntent.getTextStream().listen((String value) {
+          _sharedText = value ?? "";
+          _share = true;
+        }, onError: (err) => print("getLinkStream error: $err"));
+
+    // For sharing or opening urls/text coming from outside the app while the app is closed
+    ReceiveSharingIntent.getInitialText().then((String value) {
+      _sharedText = value ?? "";
+      _share = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: CurrentPage(),
+      home: SplashScreen(),
+      routes: {
+        PageRoutes.input: (context) {
+          if (_share) {
+            _share = false;
+            return Input(share: _sharedText);
+          }
+          return Input();
+        },
+        PageRoutes.history: (context) => const HistoryView()
+      },
     );
+  }
+
+  @override
+  void dispose() {
+    _intentDataStreamSubscription.cancel();
+    super.dispose();
   }
 }
