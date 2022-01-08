@@ -34,7 +34,10 @@ class HistoryTemplate extends StatefulWidget {
 }
 
 class _HistoryTemplateState extends State<HistoryTemplate> {
-  _HistoryTemplateState() {
+
+  @override
+  void initState() {
+    super.initState();
     init();
   }
 
