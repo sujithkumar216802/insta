@@ -150,6 +150,7 @@ class _HistoryViewState extends State<HistoryView> {
         //fire and forget
         DatabaseHelper.instance.delete(_list[index]);
         _list.removeAt(index);
+        _length -= 1;
         // update history
         setState(() {});
         break;
