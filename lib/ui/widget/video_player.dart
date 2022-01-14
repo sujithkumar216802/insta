@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_downloader/ui/widget/pop_up_menu.dart';
 import 'package:video_player/video_player.dart';

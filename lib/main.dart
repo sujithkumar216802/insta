@@ -3,10 +3,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:insta_downloader/enums/page_routes.dart';
 import 'package:insta_downloader/ui/screen/history_view.dart';
 import 'package:insta_downloader/ui/screen/input.dart';
 import 'package:insta_downloader/ui/screen/splash_screen.dart';
-import 'package:insta_downloader/enums/page_routes.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 Future<void> main() async {

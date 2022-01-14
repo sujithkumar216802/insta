@@ -24,7 +24,6 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^0.13.3
-  # path_provider: ^2.0.2
   uuid: ^3.0.4
   sqflite: ^2.0.0+3
   permission_handler: ^8.1.1
@@ -32,8 +31,6 @@ dependencies:
   video_player: ^2.1.12
   receive_sharing_intent: ^1.4.5
   # shared_preferences: ^2.0.6
-  # webview_flutter: ^2.1.2
-  # beautiful_soup_dart: ^0.2.0
   flutter_inappwebview: ^5.3.2
 
   # The following adds the Cupertino Icons font to your application.

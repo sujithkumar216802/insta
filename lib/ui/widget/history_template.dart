@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:insta_downloader/enums/file_type_enum.dart';
 import 'package:insta_downloader/enums/post_availability_enum.dart';
 import 'package:insta_downloader/enums/status_enum.dart';
