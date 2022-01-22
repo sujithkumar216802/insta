@@ -29,6 +29,8 @@ class _MyAppState extends State<MyApp> {
   String _sharedText = "";
   StreamSubscription _intentDataStreamSubscription;
   bool _share = false;
+  bool _init = false;
+  final _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
@@ -37,19 +39,29 @@ class _MyAppState extends State<MyApp> {
     _intentDataStreamSubscription =
         ReceiveSharingIntent.getTextStream().listen((String value) {
           _sharedText = value ?? "";
-          _share = true;
+          if (value != null) {
+            _share = true;
+            if (_init) Navigator.pushReplacementNamed(
+                _navigatorKey.currentContext, PageRoutes.input);
+          }
         }, onError: (err) => print("getLinkStream error: $err"));
 
     // For sharing or opening urls/text coming from outside the app while the app is closed
     ReceiveSharingIntent.getInitialText().then((String value) {
       _sharedText = value ?? "";
-      _share = true;
+      if (value != null) {
+        _share = true;
+        if (_init) Navigator.pushReplacementNamed(
+            _navigatorKey.currentContext, PageRoutes.input);
+      }
     });
+    _init = true;
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       home: SplashScreen(),
       routes: {
         PageRoutes.input: (context) {
