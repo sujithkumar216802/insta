@@ -72,8 +72,8 @@ extract(String html,
       for (var item in dataDict) {
         if (linkStoryId == "" || item['id'] == linkStoryId) {
           thumbnailUrl = item['display_url'];
-          ratio = max(
-              1, item['dimensions']['width'] / item['dimensions']['height']);
+          ratio = max(ratio,
+              item['dimensions']['width'] / item['dimensions']['height']);
           if (item['is_video'])
             links.add(FileInfo(
                 FileType.VIDEO,
@@ -179,18 +179,6 @@ extract(String html,
         }
 
         if (sharedDataDone && !loopCheck) {
-          //check if the post is accessible or not
-          if (!sharedDataDict['entry_data'].containsKey('PostPage') &&
-              !storyId &&
-              !highlightsId) {
-            login = sharedDataDict['config']['viewer'] != null;
-            if (checkLogin) return login;
-            if (login) {
-              return Status.INACCESSIBLE_LOGGED_IN;
-            }
-            return Status.INACCESSIBLE;
-          }
-
           //check if additional data needs to be found
           if (!sharedDataDict['config'].containsKey('viewer') ||
               storyId ||
@@ -213,37 +201,128 @@ extract(String html,
         return sharedDataDict['entry_data']['StoriesPage'][0]['highlight']
             ['id'];
 
-      if (!login)
+      //check if the post is accessible or not
+      if (!sharedDataDict['entry_data'].containsKey('PostPage')) {
+        if (login) return Status.INACCESSIBLE_LOGGED_IN;
+        return Status.INACCESSIBLE;
+      }
+
+      if (!login) {
         additionalDataDict = sharedDataDict['entry_data']['PostPage'][0]
             ['graphql']['shortcode_media'];
-      else
-        additionalDataDict = additionalDataDict['graphql']['shortcode_media'];
 
-      thumbnailUrl = additionalDataDict['display_resources'][0]['src'];
-      accountPhotoUrl = additionalDataDict['owner']['profile_pic_url'];
-      accountName = additionalDataDict['owner']['username'];
-      ratio = max(
-          1,
-          additionalDataDict['dimensions']['width'] /
-              additionalDataDict['dimensions']['height']);
-      if (additionalDataDict['edge_media_to_caption']['edges'].length > 0)
-        descriptionString = additionalDataDict['edge_media_to_caption']['edges']
-            [0]['node']['text'];
+        thumbnailUrl = additionalDataDict['display_resources'][0]['src'];
+        accountPhotoUrl = additionalDataDict['owner']['profile_pic_url'];
+        accountName = additionalDataDict['owner']['username'];
+        ratio = max(
+            ratio,
+            additionalDataDict['dimensions']['width'] /
+                additionalDataDict['dimensions']['height']);
 
-      if (additionalDataDict['is_video'])
-        links.add(FileInfo(FileType.VIDEO, additionalDataDict['video_url']));
-      else if (additionalDataDict['edge_sidecar_to_children'] == null)
-        links.add(FileInfo(FileType.IMAGE, additionalDataDict['display_url']));
-      else {
-        var valuesArray =
-            additionalDataDict['edge_sidecar_to_children']['edges'];
-        for (int i = 0; i < valuesArray.length; i++) {
-          if (valuesArray[i]['node']['is_video'])
-            links.add(
-                FileInfo(FileType.VIDEO, valuesArray[i]['node']['video_url']));
+        if (additionalDataDict['edge_media_to_caption']['edges'].length > 0)
+          descriptionString = additionalDataDict['edge_media_to_caption']
+              ['edges'][0]['node']['text'];
+
+        if (additionalDataDict['is_video'])
+          links.add(FileInfo(FileType.VIDEO, additionalDataDict['video_url']));
+        else if (additionalDataDict['edge_sidecar_to_children'] == null)
+          links
+              .add(FileInfo(FileType.IMAGE, additionalDataDict['display_url']));
+        else {
+          var valuesArray =
+              additionalDataDict['edge_sidecar_to_children']['edges'];
+          for (int i = 0; i < valuesArray.length; i++) {
+            if (valuesArray[i]['node']['is_video'])
+              links.add(FileInfo(
+                  FileType.VIDEO, valuesArray[i]['node']['video_url']));
+            else
+              links.add(FileInfo(
+                  FileType.IMAGE, valuesArray[i]['node']['display_url']));
+          }
+        }
+      } else {
+        additionalDataDict = additionalDataDict['items'][0];
+
+        /*
+        * "account_tag": additionalDataDict['user']['username']
+        * "account_pic_url": additionalDataDict['user']['profile_pic_url']
+        * "description": null when empty, descriptionString = additionalDataDict['caption']['text']
+        * These 3 are same for all types of post
+        *
+        * ratio: additionalDataDict['original_width'] / additionalDataDict['original_height']
+        * all posts except carousel(different files can have different ratio... I will be taking the max of all)
+        *
+        * REELS
+        * "links": additionalDataDict['video_versions']['url']
+        * "thumbnail_url": additionalDataDict['image_versions2']['candidates'][0]['url'];
+        *
+        * Video
+        * "links": additionalDataDict['video_versions'][0]['url']
+        * "thumbnail_url": additionalDataDict['thumbnails']['sprite_urls'][0]
+        *
+        * IGTV
+        * "links": additionalDataDict['video_versions'][0]['url']
+        * "thumbnail_url": additionalDataDict['thumbnails']['sprite_urls'][0]
+        *
+        * PHOTO
+        * "links": additionalDataDict['image_versions2']['candidates'][0]['url']
+        * "thumbnail_url": additionalDataDict['image_versions2']['candidates'][0]['url']... maybe the last element in candidates for size reasons
+        *
+        * Carousel
+        * "links": post['image_versions2']['candidates'][0]['url'] or post['video_versions'][0]['url']
+        * post is every item inside 'carousel_media'
+        * "thumbnail_url": additionalDataDict['carousel_media'][0]['image_versions2']['candidates'][0]['url']
+        *
+        * */
+
+        // thumbnailUrl = additionalDataDict['thumbnails']['sprite_urls'][0];
+        accountPhotoUrl = additionalDataDict['user']['profile_pic_url'];
+        accountName = additionalDataDict['user']['username'];
+
+        if (additionalDataDict['caption'] != null)
+          descriptionString = additionalDataDict['caption']['text'];
+
+        //carousel
+        if (additionalDataDict.containsKey('carousel_media')) {
+          thumbnailUrl = additionalDataDict['carousel_media'][0]
+              ['image_versions2']['candidates'][0]['url'];
+          for (var post in additionalDataDict['carousel_media']) {
+            if (post.containsKey('video_versions')) {
+              ratio =
+                  max(ratio, post['original_width'] / post['original_height']);
+              links.add(
+                  FileInfo(FileType.VIDEO, post['video_versions'][0]['url']));
+            } else {
+              ratio =
+                  max(ratio, post['original_width'] / post['original_height']);
+              links.add(FileInfo(FileType.IMAGE,
+                  post['image_versions2']['candidates'][0]['url']));
+            }
+          }
+        }
+        //single video
+        else if (additionalDataDict.containsKey('video_versions')) {
+          ratio = max(
+              ratio,
+              additionalDataDict['original_width'] /
+                  additionalDataDict['original_height']);
+          if (additionalDataDict.containsKey('thumbnail'))
+            thumbnailUrl = additionalDataDict['thumbnails']['sprite_urls'][0];
           else
-            links.add(FileInfo(
-                FileType.IMAGE, valuesArray[i]['node']['display_url']));
+            thumbnailUrl = additionalDataDict['image_versions2']['candidates'][0]['url'];
+          links.add(FileInfo(
+              FileType.VIDEO, additionalDataDict['video_versions'][0]['url']));
+        }
+        //single photo
+        else {
+          ratio = max(
+              ratio,
+              additionalDataDict['original_width'] /
+                  additionalDataDict['original_height']);
+          thumbnailUrl =
+              additionalDataDict['image_versions2']['candidates'][0]['url'];
+          links.add(FileInfo(FileType.IMAGE,
+              additionalDataDict['image_versions2']['candidates'][0]['url']));
         }
       }
     }

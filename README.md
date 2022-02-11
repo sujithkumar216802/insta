@@ -8,7 +8,7 @@ Mediastore API is used for saving files. Implemented for both above and below AP
 
 - [x] Download Single Photo Post
 - [x] Download Single Video Post
-- [x] Download Post with Multiple files
+- [x] Download Post with Multiple files/ Carousel 
 - [x] Download IGTV posts
 - [x] Download Reels
 - [x] Download Private posts (user login required)
