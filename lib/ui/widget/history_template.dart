@@ -176,7 +176,8 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
     else
       return Container(
         child: CircularProgressIndicator(),
-        width: MediaQuery.of(context).size.width,
+        alignment: Alignment.center,
+        width: MediaQuery.of(context).size.width / 5,
         height: MediaQuery.of(context).size.width / 5,
       );
   }
