@@ -22,15 +22,20 @@ class MyDrawer extends StatelessWidget {
             decoration: BoxDecoration(color: Colors.blue),
           ),
           ListTile(
-            title: Text('Home'),
+            title: Text('Input'),
             onTap: () {
-              Navigator.pushReplacementNamed(context, PageRoutes.input);
+              Navigator.pushNamed(context, PageRoutes.input);
             },
           ),
           ListTile(
               title: Text('History'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, PageRoutes.history);
+                Navigator.pushNamed(context, PageRoutes.history);
+              }),
+          ListTile(
+              title: Text('Browser'),
+              onTap: () {
+                Navigator.pushNamed(context, PageRoutes.browser);
               }),
           // ListTile(
           //     title: Text('Settings'),

@@ -20,8 +20,7 @@ class History {
   History(this.url, this.thumbnail, this.accountPhoto, this.files,
       this.description, this.tag, this.ratio);
 
-  Map<String, dynamic> toMap() {
-    return {
+  Map<String, dynamic> toMap() => {
       'url': url,
       'thumbnail': base64.encode(thumbnail),
       'account_photo': base64.encode(accountPhoto),
@@ -30,7 +29,6 @@ class History {
       'tag': tag,
       'ratio': ratio
     };
-  }
 
   static History fromMap(Map<String, dynamic> history) {
     List decodedFileInfoList = jsonDecode(history['files']);
