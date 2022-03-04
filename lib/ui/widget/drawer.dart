@@ -24,17 +24,20 @@ class MyDrawer extends StatelessWidget {
           ListTile(
             title: Text('Input'),
             onTap: () {
+              Navigator.pop(context);
               Navigator.pushNamed(context, PageRoutes.input);
             },
           ),
           ListTile(
               title: Text('History'),
               onTap: () {
+                Navigator.pop(context);
                 Navigator.pushNamed(context, PageRoutes.history);
               }),
           ListTile(
               title: Text('Browser'),
               onTap: () {
+                Navigator.pop(context);
                 Navigator.pushNamed(context, PageRoutes.browser);
               }),
           // ListTile(
