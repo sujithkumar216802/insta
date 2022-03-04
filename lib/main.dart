@@ -76,8 +76,8 @@ class _MyAppState extends State<MyApp> {
                 if (_share) {
                   _share = false;
                   ret = Input(share: _sharedText);
-                }
-                ret = Input();
+                } else
+                  ret = Input();
                 break;
               case PageRoutes.history:
                 ret = const HistoryView();
