@@ -104,7 +104,7 @@ updateHistory(List<FileInfo> list, String url, List<int> listIndexes) async {
       if (temp)
         status = await getDetailsStory(url, update: true);
       else
-        return Status.NOT_LOGGED_IN;
+        return Status.INACCESSIBLE;
     } else {
       status = await getDetailsPost(url, update: true);
     }

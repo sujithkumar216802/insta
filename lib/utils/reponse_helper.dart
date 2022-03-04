@@ -12,8 +12,8 @@ responseHelper(context, status, {callback}) {
       showDialogueWithText(context, 'Failure', 'Something went wrong');
       break;
     case Status.INACCESSIBLE_LOGGED_IN:
-      showDialogueWithText(
-          context, 'Cannot Access', 'This post cannot be accessed');
+      showDialogueWithText(context, 'Cannot Access',
+          'This post cannot be accessed. Check the Browser tab so see if Instagram works');
       break;
     case Status.NOT_FOUND:
       showDialogueWithText(context, 'Not found', 'Post does not exist');
@@ -38,9 +38,6 @@ responseHelper(context, status, {callback}) {
       break;
     case Status.ERROR_WHILE_SAVING_FILE:
       showDialogueWithText(context, 'Error', 'Error while saving file');
-      break;
-    case Status.NOT_LOGGED_IN:
-      showDialogueWithText(context, 'Not logged in', 'Not logged in');
       break;
   }
 }

@@ -16,6 +16,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../models/history_model.dart';
 import '../../utils/database_helper.dart';
 import '../../utils/file_checker.dart';
+import '../../utils/web_view.dart';
 
 class HistoryView extends StatefulWidget {
   static const String routeName = '/history';
@@ -160,7 +161,9 @@ class _HistoryViewState extends State<HistoryView> {
             notAvailableFilesInfo, _list[index].url, notAvailableIndexes);
         Navigator.pop(context);
         responseHelper(context, status, callback: () {
-          popUpMenuFunction(value, index);
+          Navigator.pop(context);
+          WebViewHelper.userLogin(context, popUpMenuFunctionWithPop,
+              val: value, index: index);
         });
 
         //fire and forget
@@ -169,6 +172,11 @@ class _HistoryViewState extends State<HistoryView> {
         setState(() {});
         break;
     }
+  }
+
+  popUpMenuFunctionWithPop(String value, int index) {
+    Navigator.pop(context);
+    popUpMenuFunction(value, index);
   }
 
   void checkPermission() async {

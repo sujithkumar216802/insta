@@ -31,11 +31,11 @@ class WebViewHelper {
   }
 
   static isLoggedIn() async {
-    loadUrl("https://www.instagram.com/");
+    await loadUrl("https://www.instagram.com/");
     return extract(await controller.getHtml(), checkLogin: true);
   }
 
-  static userLogin(context, callback) async {
+  static userLogin(context, callback, {String val, int index}) async {
     showDialog(
         barrierDismissible: false,
         context: context,
@@ -47,7 +47,10 @@ class WebViewHelper {
                   var value =
                       extract(await controller.getHtml(), checkLogin: true);
                   if (value is! Status && value) {
-                    callback();
+                    if (val != null)
+                      callback(val, index);
+                    else
+                      callback();
                   }
                 },
               ),
