@@ -115,7 +115,7 @@ class Input extends StatelessWidget {
     //check duplicates
     List<String> urlList = await DatabaseHelper.instance.getUrls();
     for (String x in urlList) {
-      if (x.contains(_url)) {
+      if (x == _url) {
         //getting the history
         History history = await DatabaseHelper.instance.getHistory(x);
 

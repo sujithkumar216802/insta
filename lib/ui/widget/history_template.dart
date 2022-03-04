@@ -32,7 +32,6 @@ class HistoryTemplate extends StatefulWidget {
 }
 
 class _HistoryTemplateState extends State<HistoryTemplate> {
-
   @override
   void initState() {
     super.initState();
@@ -145,10 +144,16 @@ class _HistoryTemplateState extends State<HistoryTemplate> {
                             return Stack(
                               children: [
                                 showWidgets[index],
-                                Text(
-                                  '${index + 1}/${showWidgets.length}',
-                                  style: TextStyle(
-                                    backgroundColor: Colors.grey,
+                                Container(
+                                  clipBehavior: Clip.hardEdge,
+                                  decoration: BoxDecoration(
+                                      color: Colors.grey,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10))),
+                                  padding: EdgeInsets.all(5),
+                                  margin: EdgeInsets.all(5),
+                                  child: Text(
+                                    '${index + 1}/${showWidgets.length}',
                                   ),
                                 )
                               ],

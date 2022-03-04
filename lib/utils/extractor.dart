@@ -83,6 +83,7 @@ extract(String html,
             links.add(FileInfo(FileType.IMAGE, thumbnailUrl));
         }
       }
+      links = links.reversed.toList();
     } else {
       int sharedDataHeaderIndex = 0;
       int sharedDataFooterIndex = 0;

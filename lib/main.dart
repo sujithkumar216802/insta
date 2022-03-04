@@ -66,16 +66,29 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       navigatorKey: _navigatorKey,
       home: SplashScreen(),
-      routes: {
-        PageRoutes.input: (context) {
-          if (_share) {
-            _share = false;
-            return Input(share: _sharedText);
-          }
-          return Input();
-        },
-        PageRoutes.history: (context) => const HistoryView(),
-        PageRoutes.browser: (context) => const Browser()
+      onGenerateRoute: (settings) {
+        return PageRouteBuilder(
+          settings: settings,
+          pageBuilder: (_, __, ___) {
+            Widget ret;
+            switch (settings.name) {
+              case PageRoutes.input:
+                if (_share) {
+                  _share = false;
+                  ret = Input(share: _sharedText);
+                }
+                ret = Input();
+                break;
+              case PageRoutes.history:
+                ret = const HistoryView();
+                break;
+              case PageRoutes.browser:
+                ret = const Browser();
+                break;
+            }
+            return ret;
+          },
+        );
       },
     );
   }
