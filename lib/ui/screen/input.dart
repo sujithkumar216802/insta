@@ -9,6 +9,7 @@ import 'package:insta_downloader/utils/database_helper.dart';
 import 'package:insta_downloader/utils/dialogue_helper.dart';
 import 'package:insta_downloader/utils/downloader.dart';
 import 'package:insta_downloader/utils/file_checker.dart';
+import 'package:insta_downloader/utils/globals.dart';
 import 'package:insta_downloader/utils/method_channel.dart';
 import 'package:insta_downloader/utils/permission.dart';
 import 'package:insta_downloader/utils/reponse_helper.dart';
@@ -22,67 +23,78 @@ class Input extends StatelessWidget {
   Uri _uri;
   BuildContext _context;
 
-  Input({String share}) {
-    if (share != null) _UrlController.text = share;
+  Input() {
+    if (isShare && share != "")  {
+      _UrlController.text = share;
+      isShare = false;
+      share = "";
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     _context = context;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
-        title: Text("InstaSave"),
-        elevation: 10,
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Row(
+    return WillPopScope(
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Theme.of(context).primaryColor,
+            title: Text("InstaSave"),
+            elevation: 10,
+          ),
+          body: SafeArea(
+            child: Column(
               children: [
-                Container(
-                  margin: EdgeInsets.fromLTRB(10, 20, 10, 20),
-                  width: MediaQuery.of(context).size.width - 20,
-                  child: TextField(
-                    controller: _UrlController,
-                    decoration: InputDecoration(
-                      hintText: 'Paste URL here',
-                      border: OutlineInputBorder(),
+                Row(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.fromLTRB(10, 20, 10, 20),
+                      width: MediaQuery.of(context).size.width - 20,
+                      child: TextField(
+                        controller: _UrlController,
+                        decoration: InputDecoration(
+                          hintText: 'Paste URL here',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                Row(
+                  children: [
+                    Container(
+                      height: 48,
+                      margin: EdgeInsets.all(10),
+                      child: ElevatedButton(
+                          onPressed: paste, child: Text("Paste")),
+                      width: MediaQuery.of(context).size.width / 2 - 20,
                     ),
-                  ),
+                    Container(
+                      height: 48,
+                      margin: EdgeInsets.all(10),
+                      child: ElevatedButton(
+                          onPressed: () {
+                            download();
+                          },
+                          child: Text("Download")),
+                      width: MediaQuery.of(context).size.width / 2 - 20,
+                    )
+                  ],
                 )
               ],
             ),
-            Row(
-              children: [
-                Container(
-                  height: 48,
-                  margin: EdgeInsets.all(10),
-                  child: ElevatedButton(onPressed: paste, child: Text("Paste")),
-                  width: MediaQuery.of(context).size.width / 2 - 20,
-                ),
-                Container(
-                  height: 48,
-                  margin: EdgeInsets.all(10),
-                  child: ElevatedButton(
-                      onPressed: () {
-                        download();
-                      },
-                      child: Text("Download")),
-                  width: MediaQuery.of(context).size.width / 2 - 20,
-                )
-              ],
-            )
-          ],
+            bottom: true,
+            top: true,
+            left: true,
+            right: true,
+          ),
+          drawer: MyDrawer(),
         ),
-        bottom: true,
-        top: true,
-        left: true,
-        right: true,
-      ),
-      drawer: MyDrawer(),
-    );
+        onWillPop: () async {
+          //exiting app, not necessary but still
+          if (screens.isNotEmpty) screens.pop();
+          return true;
+        });
   }
 
   Future<void> download() async {

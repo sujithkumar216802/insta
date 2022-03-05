@@ -16,6 +16,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../models/history_model.dart';
 import '../../utils/database_helper.dart';
 import '../../utils/file_checker.dart';
+import '../../utils/globals.dart';
 import '../../utils/web_view.dart';
 
 class HistoryView extends StatefulWidget {
@@ -50,70 +51,81 @@ class _HistoryViewState extends State<HistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
-        title: Text("InstaSave"),
-        elevation: 10,
-      ),
-      body: SafeArea(
-        child: _initialLoading
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : _list.length == 0
+    return WillPopScope(
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Theme.of(context).primaryColor,
+            title: Text("InstaSave"),
+            elevation: 10,
+          ),
+          body: SafeArea(
+            child: _initialLoading
                 ? Center(
-                    child: Text(
-                      "Nothing to show here",
-                      style: Theme.of(context).textTheme.headline3,
-                    ),
+                    child: CircularProgressIndicator(),
                   )
-                : _permissionGiven
-                    ? Container(
-                        width: MediaQuery.of(context).size.width,
-                        child: NotificationListener<ScrollNotification>(
-                          onNotification: (ScrollNotification info) {
-                            if ((_maxScrollExtent !=
-                                    info.metrics.maxScrollExtent) &&
-                                ((info.metrics.pixels +
-                                        MediaQuery.of(context).size.height) >=
-                                    info.metrics.maxScrollExtent) &&
-                                (_list.length != _length)) {
-                              _maxScrollExtent = info.metrics.maxScrollExtent;
-                              _length = _length + _pageSize > _list.length
-                                  ? _list.length
-                                  : _length + _pageSize;
-                              setState(() {});
-                            }
-                            return true;
-                          },
-                          child: ListView.builder(
-                              cacheExtent:
-                                  (MediaQuery.of(context).size.width * 6 / 5) *
-                                      (_length + 5),
-                              itemCount: _length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return HistoryTemplate(
-                                    key: ValueKey(_list[index].url),
-                                    history: _list[index],
-                                    index: index,
-                                    function: popUpMenuFunction);
-                              }),
-                        ),
-                      )
-                    : Center(
+                : _list.length == 0
+                    ? Center(
                         child: Text(
-                          "Permission Not given",
+                          "Nothing to show here",
                           style: Theme.of(context).textTheme.headline3,
                         ),
-                      ),
-        bottom: true,
-        top: true,
-        left: true,
-        right: true,
-      ),
-      drawer: MyDrawer(),
-    );
+                      )
+                    : _permissionGiven
+                        ? Container(
+                            width: MediaQuery.of(context).size.width,
+                            child: NotificationListener<ScrollNotification>(
+                              onNotification: (ScrollNotification info) {
+                                if ((_maxScrollExtent !=
+                                        info.metrics.maxScrollExtent) &&
+                                    ((info.metrics.pixels +
+                                            MediaQuery.of(context)
+                                                .size
+                                                .height) >=
+                                        info.metrics.maxScrollExtent) &&
+                                    (_list.length != _length)) {
+                                  _maxScrollExtent =
+                                      info.metrics.maxScrollExtent;
+                                  _length = _length + _pageSize > _list.length
+                                      ? _list.length
+                                      : _length + _pageSize;
+                                  setState(() {});
+                                }
+                                return true;
+                              },
+                              child: ListView.builder(
+                                  cacheExtent:
+                                      (MediaQuery.of(context).size.width *
+                                              6 /
+                                              5) *
+                                          (_length + 5),
+                                  itemCount: _length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return HistoryTemplate(
+                                        key: ValueKey(_list[index].url),
+                                        history: _list[index],
+                                        index: index,
+                                        function: popUpMenuFunction);
+                                  }),
+                            ),
+                          )
+                        : Center(
+                            child: Text(
+                              "Permission Not given",
+                              style: Theme.of(context).textTheme.headline3,
+                            ),
+                          ),
+            bottom: true,
+            top: true,
+            left: true,
+            right: true,
+          ),
+          drawer: MyDrawer(),
+        ),
+        onWillPop: () async {
+          if (screens.isNotEmpty) screens.pop();
+          return true;
+        });
   }
 
   void popUpMenuFunction(String value, int index) async {

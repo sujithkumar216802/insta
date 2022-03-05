@@ -10,8 +10,7 @@ import 'package:insta_downloader/utils/web_view.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/history_model.dart';
-
-const uuid = Uuid();
+import 'globals.dart';
 
 getDetailsPost(String url, {bool update = false}) async {
   await WebViewHelper.loadUrl(url);
@@ -132,7 +131,7 @@ downloadAndSaveFiles(var values, String postUrl, {bool update = false}) async {
   for (FileInfo url in urls) {
     try {
       var response = await http.get(Uri.parse(url.url));
-      var name = uuid.v1();
+      var name = Uuid().v1();
       if (url.fileType == FileType.VIDEO)
         url.uri =
             await saveFile(response.bodyBytes, name, FileType.VIDEO.toInt());

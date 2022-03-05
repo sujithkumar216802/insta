@@ -4,10 +4,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:insta_downloader/enums/page_routes.dart';
-import 'package:insta_downloader/ui/screen/browser.dart';
-import 'package:insta_downloader/ui/screen/history_view.dart';
 import 'package:insta_downloader/ui/screen/input.dart';
 import 'package:insta_downloader/ui/screen/splash_screen.dart';
+import 'package:insta_downloader/utils/globals.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 Future<void> main() async {
@@ -27,9 +26,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _sharedText = "";
   StreamSubscription _intentDataStreamSubscription;
-  bool _share = false;
   bool _init = false;
   final _navigatorKey = GlobalKey<NavigatorState>();
 
@@ -39,24 +36,25 @@ class _MyAppState extends State<MyApp> {
     // For sharing or opening urls/text coming from outside the app while the app is in the memory
     _intentDataStreamSubscription =
         ReceiveSharingIntent.getTextStream().listen((String value) {
-      _sharedText = value ?? "";
-      if (value != null) {
-        _share = true;
-        if (_init)
-          Navigator.pushReplacementNamed(
-              _navigatorKey.currentContext, PageRoutes.input);
-      }
+      share = value ?? "";
+      isShare = true;
+      Navigator.popUntil(
+          _navigatorKey.currentContext, ModalRoute.withName(PageRoutes.input));
+      Navigator.pushReplacement(
+        _navigatorKey.currentContext,
+        MaterialPageRoute(
+          settings: RouteSettings(name: PageRoutes.input),
+          builder: (context) => Input(),
+        ),
+      );
+      while (screens.isNotEmpty && screens.top() != PageRoutes.input)
+        screens.pop();
     }, onError: (err) => print("getLinkStream error: $err"));
 
     // For sharing or opening urls/text coming from outside the app while the app is closed
     ReceiveSharingIntent.getInitialText().then((String value) {
-      _sharedText = value ?? "";
-      if (value != null) {
-        _share = true;
-        if (_init)
-          Navigator.pushReplacementNamed(
-              _navigatorKey.currentContext, PageRoutes.input);
-      }
+      share = value ?? "";
+      isShare = true;
     });
     _init = true;
   }
@@ -66,30 +64,6 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       navigatorKey: _navigatorKey,
       home: SplashScreen(),
-      onGenerateRoute: (settings) {
-        return PageRouteBuilder(
-          settings: settings,
-          pageBuilder: (_, __, ___) {
-            Widget ret;
-            switch (settings.name) {
-              case PageRoutes.input:
-                if (_share) {
-                  _share = false;
-                  ret = Input(share: _sharedText);
-                } else
-                  ret = Input();
-                break;
-              case PageRoutes.history:
-                ret = const HistoryView();
-                break;
-              case PageRoutes.browser:
-                ret = const Browser();
-                break;
-            }
-            return ret;
-          },
-        );
-      },
     );
   }
 

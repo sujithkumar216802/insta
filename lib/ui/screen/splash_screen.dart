@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:insta_downloader/enums/page_routes.dart';
+import 'package:insta_downloader/utils/globals.dart';
 import 'package:insta_downloader/utils/web_view.dart';
 
+import 'input.dart';
+
 class SplashScreen extends StatefulWidget {
+  static const String routeName = '/';
+
   const SplashScreen({Key key}) : super(key: key);
 
   @override
@@ -29,6 +34,13 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!WebViewHelper.webView.isRunning())
       await Future.doWhile(() => Future.delayed(Duration(milliseconds: 100))
           .then((_) => !WebViewHelper.webView.isRunning()));
-    Navigator.pushReplacementNamed(context, PageRoutes.input);
+    screens.push(PageRoutes.input);
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          settings: RouteSettings(name: PageRoutes.input),
+          builder: (context) => Input(),
+        ),
+        (route) => false);
   }
 }
