@@ -21,6 +21,7 @@ class _BrowserState extends State<Browser> {
   String _url;
   Uri _uri;
   BuildContext _context;
+  InAppWebViewController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -33,13 +34,15 @@ class _BrowserState extends State<Browser> {
             elevation: 10,
           ),
           body: InAppWebView(
+            onWebViewCreated: (_controller) {
+              controller = _controller;
+            },
             initialUrlRequest:
                 URLRequest(url: Uri.parse("https://www.instagram.com/")),
             onLoadStop: (InAppWebViewController controller, Uri url) async {
               //url is wrong, have to fetch the url again
               //TODO _url seems to pickup the correct url from the second post....
               _uri = await controller.getUrl();
-
               var urlCheck = urlChecker(_uri);
               if (urlCheck is Status) {
                 _showFab = false;
@@ -61,8 +64,13 @@ class _BrowserState extends State<Browser> {
               : null,
         ),
         onWillPop: () async {
-          if (screens.isNotEmpty) screens.pop();
-          return true;
+          if (await controller.canGoBack()) {
+            controller.goBack();
+            return false;
+          } else {
+            if (screens.isNotEmpty) screens.pop();
+            return true;
+          }
         });
   }
 }
