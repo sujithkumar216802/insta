@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:insta_downloader/enums/file_type_enum.dart';
 import 'package:insta_downloader/enums/status_enum.dart';
@@ -6,11 +7,67 @@ import 'package:insta_downloader/utils/database_helper.dart';
 import 'package:insta_downloader/utils/extractor.dart';
 import 'package:insta_downloader/utils/method_channel.dart';
 import 'package:insta_downloader/utils/permission.dart';
+import 'package:insta_downloader/utils/reponse_helper.dart';
+import 'package:insta_downloader/utils/url_checker.dart';
 import 'package:insta_downloader/utils/web_view.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/history_model.dart';
-import 'globals.dart';
+import 'dialogue_helper.dart';
+import 'duplicate_checker.dart';
+
+initiateDownload(BuildContext context, Uri uri, String url) async {
+
+  var urlCheck = urlChecker(uri);
+  if (urlCheck is Status) {
+    responseHelper(context, urlCheck);
+    return;
+  }
+  url = urlCheck;
+
+  if (await getSdk() < 29 && !(await getDownloadPermission())) {
+    responseHelper(context, Status.PERMISSION_NOT_GRANTED);
+    return;
+  }
+
+  if (await checkAndUpdateMissing(url, context)) return;
+
+  showDownloadingDialogue(context);
+  var status;
+  if (uri.pathSegments.contains('stories') || uri.pathSegments.contains('s')) {
+    var temp = await WebViewHelper.isLoggedIn();
+
+    if (temp is! Status && !temp)
+      status = Status.INACCESSIBLE;
+    else if (temp is Status)
+      status = temp;
+    else
+      status = await getDetailsStory(url);
+  } else
+    status = await getDetailsPost(url);
+
+  Navigator.pop(context);
+
+  responseHelper(context, status, callback: () {
+    Navigator.pop(context);
+    WebViewHelper.userLogin(context, loginCompleted, URL: url);
+  });
+}
+
+/*static*/
+loginCompleted(BuildContext context, String url) async {
+  Navigator.pop(context);
+  showDownloadingDialogue(context);
+  Uri uri = Uri.parse(url);
+  var status;
+  if (uri.pathSegments.contains('stories') || uri.pathSegments.contains('s'))
+    status = await getDetailsStory(url);
+  else
+    status = await getDetailsPost(url);
+
+  Navigator.pop(context);
+  responseHelper(context, status);
+}
 
 getDetailsPost(String url, {bool update = false}) async {
   await WebViewHelper.loadUrl(url);
@@ -34,8 +91,7 @@ getDetailsStory(String url, {bool update = false}) async {
   if (!fullHighlights) {
     await WebViewHelper.loadUrl(url);
 
-    html = await WebViewHelper.controller.evaluateJavascript(
-        source: "window.document.getElementsByTagName('html')[0].outerHTML;");
+    html = await WebViewHelper.controller.getHtml();
 
     storyId = highlights
         ? extract(html, highlightsId: true)
@@ -51,8 +107,7 @@ getDetailsStory(String url, {bool update = false}) async {
 
   await WebViewHelper.loadUrl(toLoad);
 
-  html = await WebViewHelper.controller.evaluateJavascript(
-      source: "window.document.getElementsByTagName('html')[0].outerHTML;");
+  html = await WebViewHelper.controller.getHtml();
 
   linkStoryId = uri.queryParameters['story_media_id'] ?? "";
   linkStoryId = linkStoryId != ""

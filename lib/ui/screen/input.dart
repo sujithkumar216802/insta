@@ -1,19 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:insta_downloader/enums/post_availability_enum.dart';
 import 'package:insta_downloader/enums/status_enum.dart';
-import 'package:insta_downloader/models/file_info_model.dart';
-import 'package:insta_downloader/models/history_model.dart';
 import 'package:insta_downloader/ui/widget/drawer.dart';
-import 'package:insta_downloader/utils/database_helper.dart';
-import 'package:insta_downloader/utils/dialogue_helper.dart';
 import 'package:insta_downloader/utils/downloader.dart';
-import 'package:insta_downloader/utils/file_checker.dart';
 import 'package:insta_downloader/utils/globals.dart';
-import 'package:insta_downloader/utils/method_channel.dart';
-import 'package:insta_downloader/utils/permission.dart';
 import 'package:insta_downloader/utils/reponse_helper.dart';
-import 'package:insta_downloader/utils/web_view.dart';
 
 class Input extends StatelessWidget {
   static const String routeName = '/input';
@@ -24,7 +15,7 @@ class Input extends StatelessWidget {
   BuildContext _context;
 
   Input() {
-    if (isShare && share != "")  {
+    if (isShare && share != "") {
       _UrlController.text = share;
       isShare = false;
       share = "";
@@ -101,84 +92,11 @@ class Input extends StatelessWidget {
     try {
       _uri = Uri.parse(_UrlController.text);
     } catch (e) {
-      showDialogueWithText(_context, 'Invalid Link', 'The link is not valid');
+      responseHelper(_context, Status.INVALID_URL);
       return;
     }
 
-    if (_uri.pathSegments.contains('stories') ||
-        _uri.pathSegments.contains('s') ||
-        _uri.pathSegments.contains('p') ||
-        _uri.pathSegments.contains('tv') ||
-        _uri.pathSegments.contains('reel')) {
-      _url = 'https://www.instagram.com' + _uri.path;
-      if (_uri.queryParameters.containsKey('story_media_id') &&
-          _uri.pathSegments.contains('s'))
-        _url += '?story_media_id=' + _uri.queryParameters['story_media_id'];
-    } else {
-      showDialogueWithText(_context, 'Invalid Link', 'The link is not valid');
-      return;
-    }
-
-    if (await getSdk() < 29 && !(await getDownloadPermission())) {
-      responseHelper(_context, Status.PERMISSION_NOT_GRANTED);
-      return;
-    }
-
-    //check duplicates
-    List<String> urlList = await DatabaseHelper.instance.getUrls();
-    for (String x in urlList) {
-      if (x == _url) {
-        //getting the history
-        History history = await DatabaseHelper.instance.getHistory(x);
-
-        Map check = await checkAllFiles(history);
-        PostAvailability postAvailability = check['post_availability'];
-        List<FileInfo> notAvailableFilesInfo =
-            check['not_available_files_info'];
-        List<int> notAvailableIndexes = check['not_available_indexes'];
-
-        if (postAvailability == PostAvailability.ALL) {
-          //show dialog
-          showDialogueWithText(_context, 'Already Downloaded', 'Check History');
-          return;
-        } else {
-          showDownloadingDialogue(_context);
-          var status = await updateHistory(
-              notAvailableFilesInfo, history.url, notAvailableIndexes);
-          Navigator.pop(_context);
-          responseHelper(_context, status);
-
-          //update history in db
-          //fire and forget
-          DatabaseHelper.instance.update(history);
-          return;
-        }
-      }
-    }
-    showDownloadingDialogue(_context);
-
-    var status;
-    if (_uri.pathSegments.contains('stories') ||
-        _uri.pathSegments.contains('s')) {
-      var temp = await WebViewHelper.isLoggedIn();
-
-      if (temp is! Status && !temp)
-        status = Status.INACCESSIBLE;
-      else if (temp is Status)
-        status = temp;
-      else
-        status = await getDetailsStory(_url);
-    } else {
-      status = await getDetailsPost(_url);
-      //if (status == Status.INACCESSIBLE) login = true;
-    }
-
-    Navigator.pop(_context);
-
-    responseHelper(_context, status, callback: () {
-      Navigator.pop(_context);
-      WebViewHelper.userLogin(_context, loginCompleted);
-    });
+    initiateDownload(_context, _uri, _url);
   }
 
   void paste() {
@@ -186,18 +104,4 @@ class Input extends StatelessWidget {
         .then((value) => _UrlController.text = value.text);
   }
 
-  loginCompleted() async {
-    Navigator.pop(_context);
-    showDownloadingDialogue(_context);
-
-    var status;
-    if (_uri.pathSegments.contains('stories') ||
-        _uri.pathSegments.contains('s'))
-      status = await getDetailsStory(_UrlController.text);
-    else
-      status = await getDetailsPost(_UrlController.text);
-
-    Navigator.pop(_context);
-    responseHelper(_context, status);
-  }
 }

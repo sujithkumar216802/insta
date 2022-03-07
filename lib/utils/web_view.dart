@@ -35,7 +35,8 @@ class WebViewHelper {
     return extract(await controller.getHtml(), checkLogin: true);
   }
 
-  static userLogin(context, callback, {String val, int index}) async {
+  static userLogin(context, callback,
+      {String val, int index, String URL}) async {
     showDialog(
         barrierDismissible: false,
         context: context,
@@ -50,7 +51,7 @@ class WebViewHelper {
                     if (val != null)
                       callback(val, index);
                     else
-                      callback();
+                      callback(context, URL);
                   }
                 },
               ),

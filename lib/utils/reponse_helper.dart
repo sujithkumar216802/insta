@@ -39,5 +39,8 @@ responseHelper(context, status, {callback}) {
     case Status.ERROR_WHILE_SAVING_FILE:
       showDialogueWithText(context, 'Error', 'Error while saving file');
       break;
+    case Status.INVALID_URL:
+      showDialogueWithText(context, 'Invalid Link', 'The link is not valid');
+      break;
   }
 }

@@ -27,7 +27,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   StreamSubscription _intentDataStreamSubscription;
-  bool _init = false;
   final _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
@@ -56,7 +55,6 @@ class _MyAppState extends State<MyApp> {
       share = value ?? "";
       isShare = true;
     });
-    _init = true;
   }
 
   @override
