@@ -56,6 +56,14 @@ class MyDrawer extends StatelessWidget {
                       context, ModalRoute.withName(PageRoutes.history));
                   while (screens.isNotEmpty &&
                       screens.top() != PageRoutes.history) screens.pop();
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      settings: RouteSettings(name: PageRoutes.history),
+                      builder: (context) => HistoryView(),
+                    ),
+                  ); //to reload the data from db... TODO: find a better way
                 } else {
                   screens.push(PageRoutes.history);
                   Navigator.push(
