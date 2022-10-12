@@ -2,18 +2,20 @@
 
 A flutter application that lets you download [Instagram](https://wwww.instagram.com/) posts.
 
-Mediastore API is used for saving files. Implemented for both above and below API version 29. So the application is compatible with API version below 29.
+MediaStore API is used for saving media files. Even in API version below 29.
 
 # Features
 
-- [x] Download Single Photo Post
-- [x] Download Single Video Post
-- [x] Download Post with Multiple files/ Carousel 
-- [x] Download IGTV posts
-- [x] Download Reels
-- [x] Download Private posts (user login required)
-- [x] Download Stories
-- [x] Download Highlights
+(Instagram changed the way it stores it's data on the frontend. So, none of the features are available as of now.)
+
+- [ ] Download Single Photo Post
+- [ ] Download Single Video Post
+- [ ] Download Post with Multiple files/ Carousel 
+- [ ] Download IGTV posts
+- [ ] Download Reels
+- [ ] Download Private posts (user login required)
+- [ ] Download Stories
+- [ ] Download Highlights
 - [ ] Batch download
 
 # Screenshots
